@@ -18,8 +18,6 @@
     --bg-inactive-tab: #f5f5f5;
     --border-subtle: rgba(0, 0, 0, 0.2);
     --border-divider: #dddddd;
-    --color-totals: #7c3aed;
-    --color-session: #0891b2;
   }
 
   body {
@@ -107,9 +105,6 @@
     border-bottom: 2px solid var(--accent);
   }
 
-  .metric-tab.active.totals  { color: var(--color-totals); border-bottom-color: var(--color-totals); }
-  .metric-tab.active.session { color: var(--color-session); border-bottom-color: var(--color-session); }
-
   /* ── Tab content area ── */
   .tab-content {
     padding: 16px 0 4px;
@@ -129,9 +124,6 @@
     color: var(--accent);
     transition: color 0.2s;
   }
-  .stat-value.totals  { color: var(--color-totals); }
-  .stat-value.session { color: var(--color-session); }
-
   .stat-label {
     font-size: 15px;
     color: #555;
@@ -163,9 +155,6 @@
     transition: border-left-color 0.2s;
   }
 
-  .insight-panel.totals  { border-left-color: var(--color-totals); }
-  .insight-panel.session { border-left-color: var(--color-session); }
-
   .insight-title {
     font-size: 12px;
     font-weight: 700;
@@ -173,10 +162,7 @@
     letter-spacing: 1.44px;
     color: var(--accent);
     margin-bottom: 6px;
-    transition: color 0.2s;
   }
-  .insight-panel.totals  .insight-title { color: var(--color-totals); }
-  .insight-panel.session .insight-title { color: var(--color-session); }
 
   .insight-question {
     font-size: 18px;
@@ -206,10 +192,7 @@
     line-height: 22px;
     color: #000;
     margin-bottom: 14px;
-    transition: border-left-color 0.2s, background 0.2s;
   }
-  .insight-panel.totals  .callout { border-left-color: var(--color-totals); background: #f5f0ff; }
-  .insight-panel.session .callout { border-left-color: var(--color-session); background: #f0f9ff; }
 
   .callout strong { font-weight: 700; }
 
@@ -231,10 +214,6 @@
     text-decoration: underline;
   }
   .try-it-link:visited { color: var(--accent); }
-  .insight-panel.totals  .try-it-link,
-  .insight-panel.totals  .try-it-link:visited { color: var(--color-totals); }
-  .insight-panel.session .try-it-link,
-  .insight-panel.session .try-it-link:visited { color: var(--color-session); }
 </style>
 </head>
 <body>
@@ -254,9 +233,9 @@
 
   <!-- Rise-style tab nav -->
   <div class="metric-tabs" role="tablist">
-    <button class="metric-tab active" role="tab" aria-selected="true" data-metric="uniques">Unique Users</button>
-    <button class="metric-tab totals"  role="tab" aria-selected="false" data-metric="totals">Event Totals</button>
-    <button class="metric-tab session" role="tab" aria-selected="false" data-metric="session">Events / Session</button>
+    <button class="metric-tab active" role="tab" aria-selected="true"  data-metric="uniques">Unique Users</button>
+    <button class="metric-tab"        role="tab" aria-selected="false" data-metric="totals">Event Totals</button>
+    <button class="metric-tab"        role="tab" aria-selected="false" data-metric="session">Events / Session</button>
   </div>
 
   <div class="tab-content">
@@ -305,12 +284,12 @@ const datasets = {
   },
   totals: {
     values: [789,921,834,1047,982,1108,1031],
-    color: '#7c3aed',
+    color: '#1e61f0',
     total: '6,712', totalLabel: 'total checkouts this week', delta: '+18% vs prior week',
   },
   session: {
     values: [1.31,1.42,1.38,1.52,1.47,1.58,1.49],
-    color: '#0891b2',
+    color: '#1e61f0',
     total: '1.45', totalLabel: 'avg checkouts per session', delta: '+5% vs prior week',
   },
 };
@@ -326,7 +305,7 @@ const insights = {
     tryItUrl: 'https://app.amplitude.com/signup?source=academy&aiQuery=How%20many%20unique%20users%20triggered%20my%20most%20popular%20event%20each%20day%20over%20the%20last%207%20days%3F',
   },
   totals: {
-    panelClass: 'totals',
+    panelClass: '',
     title: 'Event Totals',
     question: 'How many checkouts actually happened?',
     body: `Every occurrence of the event is counted. That power user who checked out 4 times on Tuesday counts as 4. This number is always <strong>≥ Unique Users</strong> — never lower.`,
@@ -335,7 +314,7 @@ const insights = {
     tryItUrl: 'https://app.amplitude.com/signup?source=academy&aiQuery=How%20many%20times%20was%20my%20most%20popular%20event%20triggered%20each%20day%20this%20week%20%E2%80%94%20show%20me%20total%20occurrences%2C%20not%20unique%20users',
   },
   session: {
-    panelClass: 'session',
+    panelClass: '',
     title: 'Events per Session',
     question: 'How checkout-heavy is a typical session?',
     body: `Divides total checkout events by total sessions. A value of <strong>1.45</strong> means that when this event appears in a session, users complete checkout 1.45 times on average. Useful for comparing behavior across segments without being skewed by volume.`,
@@ -399,13 +378,12 @@ function switchMetric(metric) {
 
   // Stat row
   document.getElementById('stat-value').textContent = d.total;
-  document.getElementById('stat-value').className = 'stat-value' + (ins.panelClass ? ' ' + ins.panelClass : '');
   document.getElementById('stat-label').textContent = d.totalLabel;
   document.getElementById('stat-delta').textContent = d.delta;
 
   // Insight panel
   const panel = document.getElementById('insight-panel');
-  panel.className = 'insight-panel' + (ins.panelClass ? ' ' + ins.panelClass : '');
+  panel.className = 'insight-panel';
   document.getElementById('insight-title').textContent = ins.title;
   document.getElementById('insight-question').textContent = ins.question;
   document.getElementById('insight-body').innerHTML = ins.body;
