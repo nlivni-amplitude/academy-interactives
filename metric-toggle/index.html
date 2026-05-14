@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Event Segmentation: Metric Types</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+    background: #f5f6fa;
+    color: #1a1a2e;
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #e2e4ec;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+
+  /* Header */
+  .chart-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .event-label {
+    font-size: 13px;
+    color: #5c6170;
+    margin-bottom: 4px;
+  }
+
+  .event-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a2e;
+  }
+
+  /* Metric toggle */
+  .metric-tabs {
+    display: flex;
+    gap: 4px;
+    background: #f0f1f6;
+    border-radius: 6px;
+    padding: 3px;
+  }
+
+  .metric-tab {
+    padding: 6px 14px;
+    border-radius: 4px;
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 500;
+    color: #5c6170;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .metric-tab:hover {
+    color: #1a1a2e;
+  }
+
+  .metric-tab.active {
+    background: #fff;
+    color: #3366ff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  }
+
+  /* Summary stat */
+  .stat-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a1a2e;
+    transition: all 0.2s ease;
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: #5c6170;
+  }
+
+  .stat-delta {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .stat-delta.up {
+    background: #e6f4ea;
+    color: #1e7e34;
+  }
+
+  /* Chart */
+  .chart-wrap {
+    position: relative;
+    height: 220px;
+  }
+
+  /* Insight panel */
+  .insight-card {
+    border-radius: 8px;
+    padding: 18px 20px;
+    border-left: 4px solid #3366ff;
+    background: #f0f4ff;
+    transition: all 0.2s ease;
+  }
+
+  .insight-card.totals {
+    border-left-color: #7c3aed;
+    background: #f5f0ff;
+  }
+
+  .insight-card.session {
+    border-left-color: #0891b2;
+    background: #f0f9ff;
+  }
+
+  .insight-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #3366ff;
+    margin-bottom: 6px;
+  }
+
+  .insight-card.totals .insight-title { color: #7c3aed; }
+  .insight-card.session .insight-title { color: #0891b2; }
+
+  .insight-question {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 8px;
+  }
+
+  .insight-body {
+    font-size: 14px;
+    color: #3c3f52;
+    line-height: 1.6;
+  }
+
+  /* Callout */
+  .callout {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.7);
+    border-radius: 6px;
+    font-size: 13px;
+    color: #3c3f52;
+    line-height: 1.5;
+  }
+
+  .callout strong {
+    color: #1a1a2e;
+  }
+
+  /* Scenario label */
+  .scenario-bar {
+    font-size: 12px;
+    color: #8b8fa8;
+    margin-bottom: 20px;
+    padding: 8px 12px;
+    background: #f9f9fb;
+    border-radius: 6px;
+    border: 1px solid #e8e9f0;
+  }
+
+  .scenario-bar span {
+    color: #5c6170;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="scenario-bar">
+    Scenario: <span>checkout_completed</span> event &nbsp;·&nbsp; Last 7 days &nbsp;·&nbsp; All Users
+  </div>
+
+  <div class="chart-header">
+    <div>
+      <div class="event-label">Event</div>
+      <div class="event-name">checkout_completed</div>
+    </div>
+    <div class="metric-tabs">
+      <button class="metric-tab active" data-metric="uniques">Unique Users</button>
+      <button class="metric-tab" data-metric="totals">Event Totals</button>
+      <button class="metric-tab" data-metric="session">Events per Session</button>
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-value" id="stat-value">4,543</div>
+    <div class="stat-label" id="stat-label">unique users this week</div>
+    <div class="stat-delta up" id="stat-delta">+12% vs prior week</div>
+  </div>
+
+  <div class="chart-wrap">
+    <canvas id="chart"></canvas>
+  </div>
+</div>
+
+<div class="insight-card" id="insight-panel">
+  <div class="insight-title" id="insight-title">Unique Users</div>
+  <div class="insight-question" id="insight-question">How many people completed checkout?</div>
+  <div class="insight-body" id="insight-body">
+    Each user is counted <strong>once per day</strong>, no matter how many times they checked out.
+    A power user who completed checkout 4 times on Tuesday still counts as 1 for that day.
+  </div>
+  <div class="callout" id="insight-callout">
+    <strong>Watch for this:</strong> Switch to a bar chart in Amplitude and the same user is deduplicated across the <em>entire date range</em> — not per day. Your Unique Users number will drop. It's not a bug; line and bar charts count differently.
+  </div>
+</div>
+
+<script>
+const days = ['Mon 5/5', 'Tue 5/6', 'Wed 5/7', 'Thu 5/8', 'Fri 5/9', 'Sat 5/10', 'Sun 5/11'];
+
+const datasets = {
+  uniques: {
+    values: [542, 618, 587, 703, 671, 728, 694],
+    color: '#3366ff',
+    totalLabel: 'unique users this week',
+    total: '4,543',
+    delta: '+12% vs prior week',
+    yLabel: 'Unique Users',
+  },
+  totals: {
+    values: [789, 921, 834, 1047, 982, 1108, 1031],
+    color: '#7c3aed',
+    totalLabel: 'checkouts this week',
+    total: '6,712',
+    delta: '+18% vs prior week',
+    yLabel: 'Event Totals',
+  },
+  session: {
+    values: [1.31, 1.42, 1.38, 1.52, 1.47, 1.58, 1.49],
+    color: '#0891b2',
+    totalLabel: 'avg checkouts per session',
+    total: '1.45',
+    delta: '+5% vs prior week',
+    yLabel: 'Events / Session',
+  },
+};
+
+const insights = {
+  uniques: {
+    panelClass: '',
+    title: 'Unique Users',
+    question: 'How many people completed checkout?',
+    body: `Each user is counted <strong>once per day</strong>, no matter how many times they checked out. A power user who completed checkout 4 times on Tuesday still counts as 1 for that day.`,
+    callout: `<strong>Watch for this:</strong> Switch to a bar chart in Amplitude and the same user is deduplicated across the <em>entire date range</em> — not per day. Your Unique Users number will drop. It's not a bug; line and bar charts count differently.`,
+  },
+  totals: {
+    panelClass: 'totals',
+    title: 'Event Totals',
+    question: 'How many checkouts actually happened?',
+    body: `Every occurrence of the event is counted. That power user who checked out 4 times on Tuesday counts as 4. This number is always <strong>≥ Unique Users</strong> — never lower.`,
+    callout: `<strong>Read the gap:</strong> Notice Event Totals is ~1.5× higher than Unique Users here. That gap tells you that repeat checkouts are common — some users check out multiple times per day. A small gap would mean most users do it once and stop.`,
+  },
+  session: {
+    panelClass: 'session',
+    title: 'Events per Session',
+    question: 'How checkout-heavy is a typical session?',
+    body: `Divides total checkout events by total sessions. A value of <strong>1.45</strong> means that when this event occurs in a session, users complete checkout 1.45 times on average. Useful for comparing behavior across segments fairly.`,
+    callout: `<strong>Use this for comparisons:</strong> If enterprise users show 1.8 and SMB users show 1.2, enterprise customers are more likely to complete multiple checkouts in one visit — even if SMB has more total users. Events per Session normalizes for volume.`,
+  },
+};
+
+// Build chart
+const ctx = document.getElementById('chart').getContext('2d');
+const chart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: days,
+    datasets: [{
+      data: datasets.uniques.values,
+      borderColor: '#3366ff',
+      backgroundColor: 'rgba(51,102,255,0.08)',
+      borderWidth: 2.5,
+      pointBackgroundColor: '#3366ff',
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      fill: true,
+      tension: 0.3,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => {
+            const val = ctx.parsed.y;
+            const metric = document.querySelector('.metric-tab.active').dataset.metric;
+            const label = metric === 'session' ? val.toFixed(2) : val.toLocaleString();
+            return ` ${label}`;
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { font: { size: 12 }, color: '#8b8fa8' },
+      },
+      y: {
+        grid: { color: '#f0f1f6' },
+        ticks: { font: { size: 12 }, color: '#8b8fa8' },
+        beginAtZero: false,
+      }
+    },
+    animation: { duration: 350, easing: 'easeInOutQuart' },
+  }
+});
+
+function switchMetric(metric) {
+  const d = datasets[metric];
+  const ins = insights[metric];
+
+  // Update chart
+  chart.data.datasets[0].data = d.values;
+  chart.data.datasets[0].borderColor = d.color;
+  chart.data.datasets[0].backgroundColor = d.color + '15';
+  chart.data.datasets[0].pointBackgroundColor = d.color;
+  chart.update();
+
+  // Update stat
+  document.getElementById('stat-value').textContent = d.total;
+  document.getElementById('stat-label').textContent = d.totalLabel;
+  document.getElementById('stat-delta').textContent = d.delta;
+
+  // Update insight panel
+  const panel = document.getElementById('insight-panel');
+  panel.className = 'insight-card' + (ins.panelClass ? ' ' + ins.panelClass : '');
+  document.getElementById('insight-title').textContent = ins.title;
+  document.getElementById('insight-question').textContent = ins.question;
+  document.getElementById('insight-body').innerHTML = ins.body;
+  document.getElementById('insight-callout').innerHTML = ins.callout;
+}
+
+// Tab click
+document.querySelectorAll('.metric-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.metric-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    switchMetric(tab.dataset.metric);
+  });
+});
+</script>
+</body>
+</html>
