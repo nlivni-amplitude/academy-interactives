@@ -4,16 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Event Segmentation: Metric Types</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  :root {
+    --accent: #1E61F0;
+    --text: #000000;
+    --bg: #F5F5F5;
+  }
+
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
-    background: #f5f6fa;
-    color: #1a1a2e;
+    font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif;
+    background: rgb(233, 239, 254);
+    color: #000;
     min-height: 100vh;
     padding: 24px;
+    font-size: 17px;
+    line-height: 33px;
   }
 
   .card {
@@ -43,7 +53,7 @@
   .event-name {
     font-size: 15px;
     font-weight: 600;
-    color: #1a1a2e;
+    color: #000;
   }
 
   /* Metric toggle */
@@ -69,12 +79,12 @@
   }
 
   .metric-tab:hover {
-    color: #1a1a2e;
+    color: #000;
   }
 
   .metric-tab.active {
     background: #fff;
-    color: #3366ff;
+    color: #1E61F0;
     box-shadow: 0 1px 3px rgba(0,0,0,0.12);
   }
 
@@ -89,7 +99,7 @@
   .stat-value {
     font-size: 28px;
     font-weight: 700;
-    color: #1a1a2e;
+    color: #000;
     transition: all 0.2s ease;
   }
 
@@ -120,7 +130,7 @@
   .insight-card {
     border-radius: 8px;
     padding: 18px 20px;
-    border-left: 4px solid #3366ff;
+    border-left: 4px solid #1E61F0;
     background: #f0f4ff;
     transition: all 0.2s ease;
   }
@@ -140,7 +150,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #3366ff;
+    color: #1E61F0;
     margin-bottom: 6px;
   }
 
@@ -150,7 +160,7 @@
   .insight-question {
     font-size: 15px;
     font-weight: 600;
-    color: #1a1a2e;
+    color: #000;
     margin-bottom: 8px;
   }
 
@@ -172,7 +182,7 @@
   }
 
   .callout strong {
-    color: #1a1a2e;
+    color: #000;
   }
 
   /* Scenario label */
@@ -190,6 +200,37 @@
     color: #5c6170;
     font-weight: 500;
   }
+
+  /* Try it out */
+  .try-it-box {
+    margin-top: 14px;
+    padding: 11px 16px;
+    background: #fff;
+    border-radius: 6px;
+    border: 1px solid #d1d9ff;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .try-it-label {
+    font-weight: 700;
+    color: #000;
+  }
+
+  .try-it-link {
+    color: #1E61F0;
+    font-weight: 400;
+    text-decoration: underline;
+  }
+
+  .try-it-link:visited { color: #1E61F0; }
+  .insight-card.totals .try-it-link:visited { color: #7c3aed; }
+  .insight-card.session .try-it-link:visited { color: #0891b2; }
+
+  .insight-card.totals .try-it-box { border-color: #d8b4fe; }
+  .insight-card.totals .try-it-link { color: #7c3aed; }
+  .insight-card.session .try-it-box { border-color: #a5d8e8; }
+  .insight-card.session .try-it-link { color: #0891b2; }
 </style>
 </head>
 <body>
@@ -232,6 +273,9 @@
   <div class="callout" id="insight-callout">
     <strong>Watch for this:</strong> Switch to a bar chart in Amplitude and the same user is deduplicated across the <em>entire date range</em> — not per day. Your Unique Users number will drop. It's not a bug; line and bar charts count differently.
   </div>
+  <div class="try-it-box" id="try-it-box">
+    <strong class="try-it-label">✨ Try it out:</strong> <a class="try-it-link" id="try-it-link" href="https://app.amplitude.com/signup?source=academy&aiQuery=Create%20an%20Event%20Segmentation%20chart%20using%20any%20event%20as%20Unique%20Users%20over%20the%20last%207%20days%2C%20then%20switch%20from%20a%20line%20chart%20to%20a%20bar%20chart%20and%20notice%20how%20the%20number%20changes" target="_blank" rel="noopener">Open Event Segmentation, pick any event, and confirm the metric is set to Unique Users. Switch to a bar chart — does the number change?</a>
+  </div>
 </div>
 
 <script>
@@ -240,7 +284,7 @@ const days = ['Mon 5/5', 'Tue 5/6', 'Wed 5/7', 'Thu 5/8', 'Fri 5/9', 'Sat 5/10',
 const datasets = {
   uniques: {
     values: [542, 618, 587, 703, 671, 728, 694],
-    color: '#3366ff',
+    color: '#1E61F0',
     totalLabel: 'unique users this week',
     total: '4,543',
     delta: '+12% vs prior week',
@@ -271,6 +315,8 @@ const insights = {
     question: 'How many people completed checkout?',
     body: `Each user is counted <strong>once per day</strong>, no matter how many times they checked out. A power user who completed checkout 4 times on Tuesday still counts as 1 for that day.`,
     callout: `<strong>Watch for this:</strong> Switch to a bar chart in Amplitude and the same user is deduplicated across the <em>entire date range</em> — not per day. Your Unique Users number will drop. It's not a bug; line and bar charts count differently.`,
+    tryItPrompt: `How many unique users triggered my most popular event each day over the last 7 days?`,
+    tryItUrl: `https://app.amplitude.com/signup?source=academy&aiQuery=How%20many%20unique%20users%20triggered%20my%20most%20popular%20event%20each%20day%20over%20the%20last%207%20days%3F`,
   },
   totals: {
     panelClass: 'totals',
@@ -278,6 +324,8 @@ const insights = {
     question: 'How many checkouts actually happened?',
     body: `Every occurrence of the event is counted. That power user who checked out 4 times on Tuesday counts as 4. This number is always <strong>≥ Unique Users</strong> — never lower.`,
     callout: `<strong>Read the gap:</strong> Notice Event Totals is ~1.5× higher than Unique Users here. That gap tells you that repeat checkouts are common — some users check out multiple times per day. A small gap would mean most users do it once and stop.`,
+    tryItPrompt: `How many times was my most popular event triggered each day this week — show me total occurrences, not unique users.`,
+    tryItUrl: `https://app.amplitude.com/signup?source=academy&aiQuery=How%20many%20times%20was%20my%20most%20popular%20event%20triggered%20each%20day%20this%20week%20%E2%80%94%20show%20me%20total%20occurrences%2C%20not%20unique%20users`,
   },
   session: {
     panelClass: 'session',
@@ -285,6 +333,8 @@ const insights = {
     question: 'How checkout-heavy is a typical session?',
     body: `Divides total checkout events by total sessions. A value of <strong>1.45</strong> means that when this event occurs in a session, users complete checkout 1.45 times on average. Useful for comparing behavior across segments fairly.`,
     callout: `<strong>Use this for comparisons:</strong> If enterprise users show 1.8 and SMB users show 1.2, enterprise customers are more likely to complete multiple checkouts in one visit — even if SMB has more total users. Events per Session normalizes for volume.`,
+    tryItPrompt: `Show me events per session for my top event this week, broken down by plan type or country.`,
+    tryItUrl: `https://app.amplitude.com/signup?source=academy&aiQuery=Show%20me%20events%20per%20session%20for%20my%20top%20event%20this%20week%2C%20broken%20down%20by%20plan%20type%20or%20country`,
   },
 };
 
@@ -296,10 +346,10 @@ const chart = new Chart(ctx, {
     labels: days,
     datasets: [{
       data: datasets.uniques.values,
-      borderColor: '#3366ff',
+      borderColor: '#1E61F0',
       backgroundColor: 'rgba(51,102,255,0.08)',
       borderWidth: 2.5,
-      pointBackgroundColor: '#3366ff',
+      pointBackgroundColor: '#1E61F0',
       pointRadius: 4,
       pointHoverRadius: 6,
       fill: true,
@@ -360,6 +410,9 @@ function switchMetric(metric) {
   document.getElementById('insight-question').textContent = ins.question;
   document.getElementById('insight-body').innerHTML = ins.body;
   document.getElementById('insight-callout').innerHTML = ins.callout;
+  const tryItLink = document.getElementById('try-it-link');
+  tryItLink.textContent = ins.tryItPrompt;
+  tryItLink.href = ins.tryItUrl;
 }
 
 // Tab click
