@@ -10,10 +10,8 @@ Custom HTML/CSS/JS learning objects for Amplitude Academy courses, embedded in R
 
 | Course | Object | Description | Path | Live URL |
 |--------|--------|-------------|------|----------|
-| Event Segmentation | Metric Toggle | Toggle between metric types (count, unique users, sum, avg) and see how the chart updates | `metric-toggle/` ⚠️ | [link](https://nlivni-amplitude.github.io/academy-interactives/metric-toggle/) |
-| Event Segmentation | Metrics Panel | Annotated diagram of the Amplitude metrics panel with labeled UI components | `charts/metrics-panel/` ⚠️ | [link](https://nlivni-amplitude.github.io/academy-interactives/charts/metrics-panel/) |
-
-⚠️ Legacy path — predates naming convention. Migrate to `es/[name]/` on next major update.
+| Event Segmentation | Metric Toggle | Toggle between metric types (count, unique users, sum, avg) and see how the chart updates | `es/metric-toggle/` | [link](https://nlivni-amplitude.github.io/academy-interactives/es/metric-toggle/) |
+| Event Segmentation | Metrics Panel | Annotated diagram of the Amplitude metrics panel with labeled UI components | `es/metrics-panel/` | [link](https://nlivni-amplitude.github.io/academy-interactives/es/metrics-panel/) |
 
 ---
 
