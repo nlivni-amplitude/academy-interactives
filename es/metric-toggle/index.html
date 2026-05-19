@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Event Segmentation: Metric Types</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --accent: #1e61f0;
+    --text: #000;
+    --text-secondary: #282828;
+    --bg-card: #fff;
+    --bg-inactive-tab: #f5f5f5;
+    --border-subtle: rgba(0, 0, 0, 0.2);
+    --border-divider: #dddddd;
+  }
+
+  body {
+    font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif;
+    background: #fff;
+    color: #000;
+    font-size: 17px;
+    line-height: 33px;
+    padding: 24px 0 30px;
+  }
+
+  /* ── Chart card ── */
+  .chart-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    padding: 20px 24px 20px;
+    margin-bottom: 0;
+  }
+
+  .scenario-bar {
+    font-size: 13px;
+    font-weight: 400;
+    color: #666;
+    margin-bottom: 14px;
+    letter-spacing: 0.01em;
+  }
+
+  .scenario-bar span { font-weight: 700; color: #000; }
+
+  .chart-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .event-label {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+  }
+
+  .event-name {
+    font-size: 17px;
+    font-weight: 700;
+    color: #000;
+  }
+
+  /* ── Rise-style tab nav ── */
+  .metric-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-divider);
+  }
+
+  .metric-tab {
+    font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.44px;
+    line-height: 20px;
+    padding: 10px 18px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: var(--bg-inactive-tab);
+    color: #000;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    white-space: nowrap;
+    margin-bottom: -1px; /* sit on top of the border-bottom of .metric-tabs */
+  }
+
+  .metric-tab:hover {
+    color: var(--accent);
+  }
+
+  .metric-tab.active {
+    background: transparent;
+    color: var(--accent);
+    border-bottom: 2px solid var(--accent);
+  }
+
+  /* ── Tab content area ── */
+  .tab-content {
+    padding: 16px 0 4px;
+  }
+
+  .stat-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+    transition: color 0.2s;
+  }
+  .stat-label {
+    font-size: 15px;
+    color: #555;
+    font-weight: 400;
+  }
+
+  .stat-delta {
+    font-size: 13px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 3px;
+    background: #e6f4ea;
+    color: #1e7e34;
+  }
+
+  .chart-wrap {
+    position: relative;
+    height: 150px;
+    margin-top: 4px;
+  }
+
+  /* ── Insight panel (Rise accordion-inspired) ── */
+  .insight-panel {
+    border: 1px solid var(--border-subtle);
+    border-top: none;
+    border-left: 4px solid var(--accent);
+    background: var(--bg-card);
+    padding: 20px 24px 20px 20px;
+    transition: border-left-color 0.2s;
+  }
+
+  .insight-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.44px;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  .insight-question {
+    font-size: 18px;
+    font-weight: 700;
+    color: #000;
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+
+  .insight-body {
+    font-size: 16px;
+    font-weight: 300;
+    color: #000;
+    line-height: 24px;
+    margin-bottom: 12px;
+  }
+
+  .insight-body strong { font-weight: 700; }
+
+  /* ── Watch-for callout (Rise accent stripe style) ── */
+  .callout {
+    border-left: 4px solid var(--accent);
+    background: #f0f4ff;
+    padding: 10px 14px;
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 22px;
+    color: #000;
+    margin-bottom: 14px;
+  }
+
+  .callout strong { font-weight: 700; }
+
+  /* ── Try it out ── */
+  .try-it-box {
+    padding: 10px 14px;
+    background: #f5f5f5;
+    border: 1px solid #dddddd;
+    font-size: 15px;
+    line-height: 22px;
+    font-weight: 400;
+  }
+
+  .try-it-label { font-weight: 700; }
+
+  .try-it-link {
+    color: var(--accent);
+    font-weight: 400;
+    text-decoration: underline;
+  }
+  .try-it-link:visited { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- Chart card -->
+<div class="chart-card">
+  <div class="scenario-bar">
+    Scenario: <span>checkout_completed</span> &nbsp;·&nbsp; Last 7 days &nbsp;·&nbsp; All Users
+  </div>
+
+  <div class="chart-header">
+    <div>
+      <div class="event-label">Event</div>
+      <div class="event-name">checkout_completed</div>
+    </div>
+  </div>
+
+  <!-- Rise-style tab nav -->
+  <div class="metric-tabs" role="tablist">
+    <button class="metric-tab active" role="tab" aria-selected="true"  data-metric="uniques">Unique Users</button>
+    <button class="metric-tab"        role="tab" aria-selected="false" data-metric="totals">Event Totals</button>
+    <button class="metric-tab"        role="tab" aria-selected="false" data-metric="session">Events / Session</button>
+  </div>
+
+  <div class="tab-content">
+    <div class="stat-row">
+      <div class="stat-value" id="stat-value">4,543</div>
+      <div class="stat-label" id="stat-label">unique users this week</div>
+      <div class="stat-delta" id="stat-delta">+12% vs prior week</div>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="chart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Insight panel -->
+<div class="insight-panel" id="insight-panel" role="tabpanel">
+  <div class="insight-title" id="insight-title">Unique Users</div>
+  <div class="insight-question" id="insight-question">How many people completed checkout?</div>
+  <div class="insight-body" id="insight-body">
+    Each user is counted <strong>once per day</strong>, no matter how many times they checked out.
+    A power user who completed checkout 4 times on Tuesday still counts as 1 for that day.
+  </div>
+  <div class="callout" id="insight-callout">
+    <strong>Watch for this:</strong> Switch to a bar chart in Amplitude and the same user is deduplicated
+    across the <em>entire date range</em> — not per day. Your Unique Users number will drop.
+    It's not a bug; line and bar charts count differently.
+  </div>
+  <div class="try-it-box">
+    <strong class="try-it-label">✨ Try it out:</strong>
+    <a class="try-it-link" id="try-it-link"
+       href="https://app.amplitude.com/signup?source=academy&aiQuery=How%20many%20unique%20users%20triggered%20my%20most%20popular%20event%20each%20day%20over%20the%20last%207%20days%3F"
+       target="_blank" rel="noopener">
+      How many unique users triggered my most popular event each day over the last 7 days?
+    </a>
+  </div>
+</div>
+
+<script>
+const days = ['Mon 5/5','Tue 5/6','Wed 5/7','Thu 5/8','Fri 5/9','Sat 5/10','Sun 5/11'];
+
+const datasets = {
+  uniques: {
+    values: [542,618,587,703,671,728,694],
+    color: '#1e61f0',
+    total: '4,543', totalLabel: 'unique users this week', delta: '+12% vs prior week',
+  },
+  totals: {
+    values: [789,921,834,1047,982,1108,1031],
+    color: '#1e61f0',
+    total: '6,712', totalLabel: 'total checkouts this week', delta: '+18% vs prior week',
+  },
+  session: {
+    values: [1.31,1.42,1.38,1.52,1.47,1.58,1.49],
+    color: '#1e61f0',
+    total: '1.45', totalLabel: 'avg checkouts per session', delta: '+5% vs prior week',
+  },
+};
+
+const insights = {
+  uniques: {
+    panelClass: '',
+    title: 'Unique Users',
+    question: 'How many people completed checkout?',
+    body: `Each user is counted <strong>once per day</strong>, no matter how many times they checked out. A power user who completed checkout 4 times on Tuesday still counts as 1 for that day.`,
+    callout: `<strong>Watch for this:</strong> Switch to a bar chart in Amplitude and the same user is deduplicated across the <em>entire date range</em> — not per day. Your Unique Users number will drop. It's not a bug; line and bar charts count differently.`,
+    tryItPrompt: 'How many unique users triggered my most popular event each day over the last 7 days?',
+    tryItUrl: 'https://app.amplitude.com/signup?source=academy&aiQuery=How%20many%20unique%20users%20triggered%20my%20most%20popular%20event%20each%20day%20over%20the%20last%207%20days%3F',
+  },
+  totals: {
+    panelClass: '',
+    title: 'Event Totals',
+    question: 'How many checkouts actually happened?',
+    body: `Every occurrence of the event is counted. That power user who checked out 4 times on Tuesday counts as 4. This number is always <strong>≥ Unique Users</strong> — never lower.`,
+    callout: `<strong>Read the gap:</strong> Notice Event Totals is ~1.5× higher than Unique Users here. That gap tells you repeat checkouts are common — some users check out multiple times per day. A small gap means most users do it once and stop.`,
+    tryItPrompt: 'How many times was my most popular event triggered each day this week — show me total occurrences, not unique users.',
+    tryItUrl: 'https://app.amplitude.com/signup?source=academy&aiQuery=How%20many%20times%20was%20my%20most%20popular%20event%20triggered%20each%20day%20this%20week%20%E2%80%94%20show%20me%20total%20occurrences%2C%20not%20unique%20users',
+  },
+  session: {
+    panelClass: '',
+    title: 'Events per Session',
+    question: 'How checkout-heavy is a typical session?',
+    body: `Divides total checkout events by total sessions. A value of <strong>1.45</strong> means that when this event appears in a session, users complete checkout 1.45 times on average. Useful for comparing behavior across segments without being skewed by volume.`,
+    callout: `<strong>Use this for comparisons:</strong> If enterprise users show 1.8 and SMB shows 1.2, enterprise customers complete more checkouts per visit — even if SMB has more total users. Events per Session normalizes for volume.`,
+    tryItPrompt: 'Show me events per session for my top event this week, broken down by plan type or country.',
+    tryItUrl: 'https://app.amplitude.com/signup?source=academy&aiQuery=Show%20me%20events%20per%20session%20for%20my%20top%20event%20this%20week%2C%20broken%20down%20by%20plan%20type%20or%20country',
+  },
+};
+
+// Build chart
+const ctx = document.getElementById('chart').getContext('2d');
+const chart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: days,
+    datasets: [{
+      data: datasets.uniques.values,
+      borderColor: '#1e61f0',
+      backgroundColor: 'rgba(30,97,240,0.07)',
+      borderWidth: 2.5,
+      pointBackgroundColor: '#1e61f0',
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      fill: true,
+      tension: 0.3,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (c) => {
+            const metric = document.querySelector('.metric-tab.active').dataset.metric;
+            const v = c.parsed.y;
+            return ' ' + (metric === 'session' ? v.toFixed(2) : v.toLocaleString());
+          }
+        }
+      }
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 12, family: '"IBM Plex Sans"' }, color: '#888' } },
+      y: { grid: { color: '#f0f0f0' }, ticks: { font: { size: 12, family: '"IBM Plex Sans"' }, color: '#888' }, beginAtZero: false },
+    },
+    animation: { duration: 350, easing: 'easeInOutQuart' },
+  }
+});
+
+function switchMetric(metric) {
+  const d = datasets[metric];
+  const ins = insights[metric];
+
+  // Chart
+  chart.data.datasets[0].data = d.values;
+  chart.data.datasets[0].borderColor = d.color;
+  chart.data.datasets[0].backgroundColor = d.color + '12';
+  chart.data.datasets[0].pointBackgroundColor = d.color;
+  chart.update();
+
+  // Stat row
+  document.getElementById('stat-value').textContent = d.total;
+  document.getElementById('stat-label').textContent = d.totalLabel;
+  document.getElementById('stat-delta').textContent = d.delta;
+
+  // Insight panel
+  const panel = document.getElementById('insight-panel');
+  panel.className = 'insight-panel';
+  document.getElementById('insight-title').textContent = ins.title;
+  document.getElementById('insight-question').textContent = ins.question;
+  document.getElementById('insight-body').innerHTML = ins.body;
+  document.getElementById('insight-callout').innerHTML = ins.callout;
+  const link = document.getElementById('try-it-link');
+  link.textContent = ins.tryItPrompt;
+  link.href = ins.tryItUrl;
+}
+
+document.querySelectorAll('.metric-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.metric-tab').forEach(t => {
+      t.classList.remove('active');
+      t.setAttribute('aria-selected', 'false');
+    });
+    tab.classList.add('active');
+    tab.setAttribute('aria-selected', 'true');
+    switchMetric(tab.dataset.metric);
+  });
+});
+</script>
+</body>
+</html>
