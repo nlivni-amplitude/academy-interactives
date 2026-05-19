@@ -8,10 +8,10 @@ Custom HTML/CSS/JS learning objects for Amplitude Academy courses, embedded in R
 
 ## Catalog
 
-| Course | Object | Path | Live URL |
-|--------|--------|------|----------|
-| Event Segmentation | Metric Toggle | `metric-toggle/` ⚠️ | [metric-toggle](https://nlivni-amplitude.github.io/academy-interactives/metric-toggle/) |
-| Event Segmentation | Metrics Panel | `charts/metrics-panel/` ⚠️ | [metrics-panel](https://nlivni-amplitude.github.io/academy-interactives/charts/metrics-panel/) |
+| Course | Object | Description | Path | Live URL |
+|--------|--------|-------------|------|----------|
+| Event Segmentation | Metric Toggle | Toggle between metric types (count, unique users, sum, avg) and see how the chart updates | `metric-toggle/` ⚠️ | [link](https://nlivni-amplitude.github.io/academy-interactives/metric-toggle/) |
+| Event Segmentation | Metrics Panel | Annotated diagram of the Amplitude metrics panel with labeled UI components | `charts/metrics-panel/` ⚠️ | [link](https://nlivni-amplitude.github.io/academy-interactives/charts/metrics-panel/) |
 
 ⚠️ Legacy path — predates naming convention. Migrate to `es/[name]/` on next major update.
 
@@ -40,6 +40,8 @@ academy-interactives/
 | `shared` | Reusable across courses |
 
 **Object names:** lowercase kebab-case describing the interaction (`metric-toggle`, `funnel-builder`). No course prefix in the name — the folder provides that context.
+
+**When adding a new interactive:** add a row to the Catalog table above with course, object name, one-sentence description, path, and live URL.
 
 ---
 
