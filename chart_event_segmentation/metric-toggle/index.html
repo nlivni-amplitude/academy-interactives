@@ -235,7 +235,7 @@
   <div class="metric-tabs" role="tablist">
     <button class="metric-tab active" role="tab" aria-selected="true"  data-metric="uniques">Unique Users</button>
     <button class="metric-tab"        role="tab" aria-selected="false" data-metric="totals">Event Totals</button>
-    <button class="metric-tab"        role="tab" aria-selected="false" data-metric="session">Events / Session</button>
+    <button class="metric-tab"        role="tab" aria-selected="false" data-metric="average">Average</button>
   </div>
 
   <div class="tab-content">
@@ -287,10 +287,10 @@ const datasets = {
     color: '#1e61f0',
     total: '6,712', totalLabel: 'total checkouts this week', delta: '+18% vs prior week',
   },
-  session: {
-    values: [1.31,1.42,1.38,1.52,1.47,1.58,1.49],
+  average: {
+    values: [1.46,1.49,1.42,1.49,1.46,1.52,1.48],
     color: '#1e61f0',
-    total: '1.45', totalLabel: 'avg checkouts per session', delta: '+5% vs prior week',
+    total: '1.47', totalLabel: 'avg checkouts per user', delta: '+4% vs prior week',
   },
 };
 
@@ -313,14 +313,14 @@ const insights = {
     tryItPrompt: 'How many times was my most popular event triggered each day this week — show me total occurrences, not unique users.',
     tryItUrl: 'https://app.amplitude.com/signup?source=academy&aiQuery=How%20many%20times%20was%20my%20most%20popular%20event%20triggered%20each%20day%20this%20week%20%E2%80%94%20show%20me%20total%20occurrences%2C%20not%20unique%20users',
   },
-  session: {
+  average: {
     panelClass: '',
-    title: 'Events per Session',
-    question: 'How checkout-heavy is a typical session?',
-    body: `Divides total checkout events by total sessions. A value of <strong>1.45</strong> means that when this event appears in a session, users complete checkout 1.45 times on average. Useful for comparing behavior across segments without being skewed by volume.`,
-    callout: `<strong>Use this for comparisons:</strong> If enterprise users show 1.8 and SMB shows 1.2, enterprise customers complete more checkouts per visit — even if SMB has more total users. Events per Session normalizes for volume.`,
-    tryItPrompt: 'Show me events per session for my top event this week, broken down by plan type or country.',
-    tryItUrl: 'https://app.amplitude.com/signup?source=academy&aiQuery=Show%20me%20events%20per%20session%20for%20my%20top%20event%20this%20week%2C%20broken%20down%20by%20plan%20type%20or%20country',
+    title: 'Average',
+    question: 'How often does a typical user complete checkout?',
+    body: `Divides total occurrences by unique users. A value of <strong>1.47</strong> means the average user who checked out this week did so 1.47 times. It shows depth of engagement — not just whether users acted, but how much.`,
+    callout: `<strong>Compare to Uniques:</strong> If Uniques are flat but Average is rising, you're getting more repeat behavior from the same users — deepening engagement, not growing your audience. A rising Average with rising Uniques means both breadth and depth are growing.`,
+    tryItPrompt: 'What is the average number of times users trigger my most popular event per day this week?',
+    tryItUrl: 'https://app.amplitude.com/signup?source=academy&aiQuery=What%20is%20the%20average%20number%20of%20times%20users%20trigger%20my%20most%20popular%20event%20per%20day%20this%20week%3F',
   },
 };
 
@@ -352,7 +352,7 @@ const chart = new Chart(ctx, {
           label: (c) => {
             const metric = document.querySelector('.metric-tab.active').dataset.metric;
             const v = c.parsed.y;
-            return ' ' + (metric === 'session' ? v.toFixed(2) : v.toLocaleString());
+            return ' ' + (metric === 'average' ? v.toFixed(2) : v.toLocaleString());
           }
         }
       }
