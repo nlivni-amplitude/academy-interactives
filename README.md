@@ -14,6 +14,7 @@ Custom HTML/CSS/JS learning objects for Amplitude Academy courses, embedded in R
 | Event Segmentation | Metrics Panel | Annotated diagram of the Amplitude metrics panel with labeled UI components | `chart_event_segmentation/metrics-panel/` | [link](https://nlivni-amplitude.github.io/academy-interactives/chart_event_segmentation/metrics-panel/) |
 | Agent Analytics | Two Users Comparison | Side-by-side event timeline showing identical events producing opposite outcomes (task completed vs. hallucination) | `aa/two-users-comparison/` | [link](https://nlivni-amplitude.github.io/academy-interactives/aa/two-users-comparison/) |
 | Agent Analytics | Three-Layer Stack | Positioning diagram showing LLM Observability, Agent Analytics, and Product Analytics as connected layers | `aa/three-layer-stack/` | [link](https://nlivni-amplitude.github.io/academy-interactives/aa/three-layer-stack/) |
+| Agent Analytics | Three-Step Process | Clickable L→R diagram showing See it → Judge it → Tie it to outcomes | `aa/three-step-process/` | [link](https://nlivni-amplitude.github.io/academy-interactives/aa/three-step-process/) |
 
 ---
 
