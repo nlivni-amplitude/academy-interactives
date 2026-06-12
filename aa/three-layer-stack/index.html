@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Three-Layer Stack</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif;
+      background: #fff;
+      color: #000;
+      padding: 24px 20px 20px;
+    }
+
+    .wrapper {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .headline {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 500;
+      color: #777;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+    }
+
+    /* Individual layers */
+    .layer {
+      border-radius: 10px;
+      padding: 14px 18px;
+      position: relative;
+    }
+
+    .layer-top {
+      background: #f5f5f5;
+      border: 1.5px solid #ddd;
+    }
+
+    .layer-middle {
+      background: #1E61F0;
+      border: 2px solid #1E61F0;
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(30, 97, 240, 0.25);
+      z-index: 1;
+      padding: 16px 18px;
+    }
+
+    .layer-bottom {
+      background: #f0f7ff;
+      border: 1.5px solid #b8d0f8;
+    }
+
+    .layer-name {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .layer-tools {
+      font-size: 12px;
+      opacity: 0.65;
+      margin-bottom: 6px;
+    }
+
+    .layer-middle .layer-tools {
+      opacity: 0.75;
+    }
+
+    .layer-desc {
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .layer-callout {
+      display: inline-block;
+      font-size: 11.5px;
+      font-weight: 500;
+      margin-top: 5px;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    .callout-gray {
+      background: #e0e0e0;
+      color: #555;
+    }
+
+    .callout-white {
+      background: rgba(255,255,255,0.22);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.4);
+    }
+
+    .callout-blue {
+      background: #d0e4ff;
+      color: #1E61F0;
+    }
+
+    /* Connectors between layers */
+    .connector {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 36px;
+      position: relative;
+      z-index: 0;
+    }
+
+    .connector-line {
+      width: 2px;
+      height: 100%;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .connector-dashed .connector-line {
+      background: repeating-linear-gradient(
+        to bottom,
+        #ccc 0px,
+        #ccc 5px,
+        transparent 5px,
+        transparent 10px
+      );
+    }
+
+    .connector-solid .connector-line {
+      background: #1E61F0;
+    }
+
+    .connector-tag {
+      background: #fff;
+      border: 1.5px solid #ccc;
+      border-radius: 20px;
+      padding: 2px 10px;
+      font-size: 11px;
+      color: #888;
+      position: relative;
+      z-index: 1;
+      white-space: nowrap;
+    }
+
+    .connector-solid .connector-tag {
+      border-color: #1E61F0;
+      color: #1E61F0;
+      font-weight: 500;
+    }
+
+    .try-it-box {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 12.5px;
+      color: #555;
+    }
+
+    .try-it-label {
+      font-weight: 600;
+      color: #1E61F0;
+      margin-right: 4px;
+    }
+
+    .try-it-link {
+      color: #1E61F0;
+      text-decoration: underline;
+    }
+
+    .try-it-link:visited {
+      color: #1E61F0;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+
+    <div class="headline">Where Agent Analytics fits</div>
+
+    <div class="stack">
+
+      <!-- Top layer: LLM Observability -->
+      <div class="layer layer-top">
+        <div class="layer-name">LLM Observability</div>
+        <div class="layer-tools">LangFuse &middot; LangSmith &middot; Datadog</div>
+        <div class="layer-desc">Captures latency, cost, token usage, and technical traces at the model level.</div>
+        <div><span class="layer-callout callout-gray">Doesn't connect to user outcomes</span></div>
+      </div>
+
+      <!-- Connector: disconnected -->
+      <div class="connector connector-dashed">
+        <div class="connector-line"></div>
+        <div class="connector-tag">no shared user identity</div>
+      </div>
+
+      <!-- Middle layer: Agent Analytics -->
+      <div class="layer layer-middle">
+        <div class="layer-name">Agent Analytics</div>
+        <div class="layer-tools">Amplitude &middot; Session-level AI instrumentation</div>
+        <div class="layer-desc">Captures full AI sessions tied to Amplitude user identity — with eval scores, outcome signals, and session context.</div>
+        <div><span class="layer-callout callout-white">The layer between — bridging models and users</span></div>
+      </div>
+
+      <!-- Connector: connected -->
+      <div class="connector connector-solid">
+        <div class="connector-line"></div>
+        <div class="connector-tag">shared user identity</div>
+      </div>
+
+      <!-- Bottom layer: Product Analytics -->
+      <div class="layer layer-bottom">
+        <div class="layer-name">Product Analytics</div>
+        <div class="layer-tools">Amplitude &middot; Retention &middot; Conversion &middot; Cohorts</div>
+        <div class="layer-desc">Captures downstream product behavior — did the user come back, convert, or churn?</div>
+        <div><span class="layer-callout callout-blue">Connected via shared user identity</span></div>
+      </div>
+
+    </div>
+
+    <div class="try-it-box">
+      <span class="try-it-label">✨ Try it out:</span>
+      <a class="try-it-link" href="https://app.amplitude.com/signup?source=academy&aiQuery=Show%20me%20my%20AI%20agent%20session%20outcomes%20and%20how%20they%20correlate%20with%20product%20retention%20over%20the%20last%2030%20days" target="_blank" rel="noopener">
+        Show me AI agent session outcomes and how they correlate with product retention
+      </a>
+    </div>
+
+  </div>
+</body>
+</html>
