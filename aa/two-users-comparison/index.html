@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Two Users, One Problem</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif;
+      background: #fff;
+      color: #000;
+      padding: 24px 20px 20px;
+    }
+
+    .wrapper {
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    .headline {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 500;
+      color: #777;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .comparison {
+      display: flex;
+      gap: 14px;
+    }
+
+    .panel {
+      flex: 1;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      border-bottom: 1.5px solid #e0e0e0;
+    }
+
+    .panel-a .panel-header { background: #f0f7ff; color: #1E61F0; }
+    .panel-b .panel-header { background: #fff8f6; color: #b03a00; }
+
+    .timeline {
+      padding: 12px 14px 8px;
+    }
+
+    .tl-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .tl-track {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 12px;
+      flex-shrink: 0;
+    }
+
+    .tl-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 5px;
+    }
+
+    .tl-line {
+      width: 2px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    .tl-label {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      background: #f5f5f5;
+      color: #333;
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 6px;
+    }
+
+    .outcome {
+      margin: 6px 14px 12px;
+      padding: 8px 12px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .outcome-icon {
+      font-size: 15px;
+      line-height: 1.2;
+    }
+
+    .outcome-sub {
+      font-size: 11.5px;
+      font-weight: 400;
+      opacity: 0.75;
+      margin-top: 1px;
+    }
+
+    .outcome-success { background: #e8f5ea; color: #1b5e20; }
+    .outcome-failure { background: #fde8e2; color: #b71c1c; }
+
+    .note {
+      background: #f7f7f7;
+      border: 1.5px dashed #d0d0d0;
+      border-radius: 8px;
+      padding: 9px 16px;
+      text-align: center;
+      font-size: 12.5px;
+      color: #555;
+      margin-top: 14px;
+      line-height: 1.5;
+    }
+
+    .note strong { color: #000; }
+
+    .try-it-box {
+      margin-top: 12px;
+      text-align: center;
+      font-size: 12.5px;
+      color: #555;
+    }
+
+    .try-it-label {
+      font-weight: 600;
+      color: #1E61F0;
+      margin-right: 4px;
+    }
+
+    .try-it-link {
+      color: #1E61F0;
+      text-decoration: underline;
+    }
+
+    .try-it-link:visited {
+      color: #1E61F0;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+
+    <div class="headline">Same events &nbsp;&middot;&nbsp; Same order &nbsp;&middot;&nbsp; Completely different outcomes</div>
+
+    <div class="comparison">
+
+      <div class="panel panel-a">
+        <div class="panel-header">User A</div>
+        <div class="timeline">
+          <div class="tl-row">
+            <div class="tl-track">
+              <div class="tl-dot" style="background:#1E61F0"></div>
+              <div class="tl-line" style="background:#c5d9fb"></div>
+            </div>
+            <span class="tl-label">session_start</span>
+          </div>
+          <div class="tl-row">
+            <div class="tl-track">
+              <div class="tl-dot" style="background:#1E61F0"></div>
+              <div class="tl-line" style="background:#c5d9fb"></div>
+            </div>
+            <span class="tl-label">query_sent</span>
+          </div>
+          <div class="tl-row">
+            <div class="tl-track">
+              <div class="tl-dot" style="background:#1E61F0"></div>
+              <div class="tl-line" style="background:#c5d9fb"></div>
+            </div>
+            <span class="tl-label">response_received</span>
+          </div>
+          <div class="tl-row">
+            <div class="tl-track">
+              <div class="tl-dot" style="background:#1E61F0"></div>
+            </div>
+            <span class="tl-label">session_end</span>
+          </div>
+        </div>
+        <div class="outcome outcome-success">
+          <span class="outcome-icon">✓</span>
+          <div>
+            Task completed
+            <div class="outcome-sub">User satisfied — returned next session</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-b">
+        <div class="panel-header">User B</div>
+        <div class="timeline">
+          <div class="tl-row">
+            <div class="tl-track">
+              <div class="tl-dot" style="background:#b03a00"></div>
+              <div class="tl-line" style="background:#fbc9b0"></div>
+            </div>
+            <span class="tl-label">session_start</span>
+          </div>
+          <div class="tl-row">
+            <div class="tl-track">
+              <div class="tl-dot" style="background:#b03a00"></div>
+              <div class="tl-line" style="background:#fbc9b0"></div>
+            </div>
+            <span class="tl-label">query_sent</span>
+          </div>
+          <div class="tl-row">
+            <div class="tl-track">
+              <div class="tl-dot" style="background:#b03a00"></div>
+              <div class="tl-line" style="background:#fbc9b0"></div>
+            </div>
+            <span class="tl-label">response_received</span>
+          </div>
+          <div class="tl-row">
+            <div class="tl-track">
+              <div class="tl-dot" style="background:#b03a00"></div>
+            </div>
+            <span class="tl-label">session_end</span>
+          </div>
+        </div>
+        <div class="outcome outcome-failure">
+          <span class="outcome-icon">✗</span>
+          <div>
+            Hallucination — user left
+            <div class="outcome-sub">Frustrated — did not return</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="note">
+      <strong>A standard event dashboard can't tell these sessions apart.</strong>
+      Both fire the same events in the same order. You need session-level context and outcome signals to know which is which.
+    </div>
+
+    <div class="try-it-box">
+      <span class="try-it-label">✨ Try it out:</span>
+      <a class="try-it-link" href="https://app.amplitude.com/signup?source=academy&aiQuery=Show%20me%20my%20AI%20agent%20sessions%20broken%20down%20by%20outcome%20type%20over%20the%20last%2030%20days" target="_blank" rel="noopener">
+        Show me my AI agent sessions broken down by outcome type over the last 30 days
+      </a>
+    </div>
+
+  </div>
+</body>
+</html>
