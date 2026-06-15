@@ -15,6 +15,8 @@ Custom HTML/CSS/JS learning objects for Amplitude Academy courses, embedded in R
 | Agent Analytics | Two Users Comparison | Side-by-side event timeline showing identical events producing opposite outcomes (task completed vs. hallucination) | `aa/two-users-comparison/` | [link](https://nlivni-amplitude.github.io/academy-interactives/aa/two-users-comparison/) |
 | Agent Analytics | Three-Layer Stack | Positioning diagram showing LLM Observability, Agent Analytics, and Product Analytics as connected layers | `aa/three-layer-stack/` | [link](https://nlivni-amplitude.github.io/academy-interactives/aa/three-layer-stack/) |
 | Agent Analytics | Three-Step Process | Clickable L→R diagram showing See it → Judge it → Tie it to outcomes | `aa/three-step-process/` | [link](https://nlivni-amplitude.github.io/academy-interactives/aa/three-step-process/) |
+| Session Replay | Frustration Signals | 2×2 card grid of the four frustration signal types: rage click, dead click, error click, form abandonment | `sr/frustration-signals/` | [link](https://nlivni-amplitude.github.io/academy-interactives/sr/frustration-signals/) |
+| Session Replay | Agent Flow | 3-step flow diagram: Ask → Analyze → Surface — how Session Replay Agent processes sessions | `sr/agent-flow/` | [link](https://nlivni-amplitude.github.io/academy-interactives/sr/agent-flow/) |
 
 ---
 
