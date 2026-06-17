@@ -17,6 +17,7 @@ Custom HTML/CSS/JS learning objects for Amplitude Academy courses, embedded in R
 | Agent Analytics | Three-Step Process | Clickable L→R diagram showing See it → Judge it → Tie it to outcomes | `aa/three-step-process/` | [link](https://nlivni-amplitude.github.io/academy-interactives/aa/three-step-process/) |
 | Session Replay | Frustration Signals | 2×2 card grid of the four frustration signal types: rage click, dead click, error click, form abandonment | `sr/frustration-signals/` | [link](https://nlivni-amplitude.github.io/academy-interactives/sr/frustration-signals/) |
 | Session Replay | Agent Flow | 3-step flow diagram: Ask → Analyze → Surface — how Session Replay Agent processes sessions | `sr/agent-flow/` | [link](https://nlivni-amplitude.github.io/academy-interactives/sr/agent-flow/) |
+| Blog | Kirkpatrick Levels Tabs | Tabbed object showing Kirkpatrick's four evaluation levels applied to an AI agent (Smile Sheet blog post) | `blog/agent-analytics-kirkpatrick-levels-tabs/` | [link](https://nlivni-amplitude.github.io/academy-interactives/blog/agent-analytics-kirkpatrick-levels-tabs/) |
 
 ---
 
