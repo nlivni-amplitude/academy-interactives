@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kirkpatrick's four levels, applied to an AI agent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent: #1E61F0;
+    --text: #000;
+    --muted: #555;
+    --line: #e0e0e0;
+    --tint: #f0f7ff;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #fff; }
+  body {
+    font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif;
+    color: var(--text);
+    padding: 24px 20px 20px;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; }
+  .caption {
+    font-size: 14px;
+    color: var(--muted);
+    margin: 0 0 14px;
+  }
+  .tablist {
+    display: flex;
+    gap: 6px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 18px;
+  }
+  .tab {
+    flex: 1 1 0;
+    appearance: none;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -1px;
+    padding: 10px 8px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.25;
+    color: var(--muted);
+    cursor: pointer;
+    text-align: center;
+    transition: color .12s, border-color .12s, background .12s;
+  }
+  .tab .num { display: block; font-weight: 600; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; }
+  .tab .name { display: block; font-weight: 500; }
+  .tab:hover { color: var(--text); background: var(--tint); }
+  .tab[aria-selected="true"] {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+  .panel { min-height: 210px; }
+  .panel[hidden] { display: none; }
+  .question {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 0 8px;
+  }
+  .body {
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--text);
+    margin: 0;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="caption">Kirkpatrick's four levels of evaluation, applied to an AI agent.</p>
+
+  <div class="tablist" role="tablist" aria-label="Kirkpatrick levels applied to an AI agent">
+    <button class="tab" role="tab" id="tab-1" aria-controls="panel-1" aria-selected="true">
+      <span class="num">Level 1</span><span class="name">Reaction</span>
+    </button>
+    <button class="tab" role="tab" id="tab-2" aria-controls="panel-2" aria-selected="false" tabindex="-1">
+      <span class="num">Level 2</span><span class="name">Learning</span>
+    </button>
+    <button class="tab" role="tab" id="tab-3" aria-controls="panel-3" aria-selected="false" tabindex="-1">
+      <span class="num">Level 3</span><span class="name">Behavior</span>
+    </button>
+    <button class="tab" role="tab" id="tab-4" aria-controls="panel-4" aria-selected="false" tabindex="-1">
+      <span class="num">Level 4</span><span class="name">Results</span>
+    </button>
+  </div>
+
+  <div class="panel" role="tabpanel" id="panel-1" aria-labelledby="tab-1">
+    <p class="question">Did people like it?</p>
+    <p class="body">The thumbs up tells you whether the user liked the answer. Almost nobody leaves one. When Amplitude studied 27,000 of its own agent sessions, only about 2.2% of users gave explicit feedback. So you're reading the mood of one user in fifty and calling it product health. Two users can have completely different experiences and look identical on a reaction metric. One got their problem solved. One gave up disgusted. Both sent the same number of messages. A thumbs up can't tell them apart.</p>
+  </div>
+
+  <div class="panel" role="tabpanel" id="panel-2" aria-labelledby="tab-2" hidden>
+    <p class="question">Did they pick up the skill?</p>
+    <p class="body">In training this is the post-test. For an agent it's the eval: did the response answer the question, stay on task, respect the user's constraints, skip the confident wrong answer. This is where LLM-as-judge scoring and quality rubrics live, and it's a real step up from "did they like it." It still doesn't answer what the agent is worth.</p>
+  </div>
+
+  <div class="panel" role="tabpanel" id="panel-3" aria-labelledby="tab-3" hidden>
+    <p class="question">Did they do anything differently afterward?</p>
+    <p class="body">A good post-test score means nothing if the learner never changes how they work, and the same holds for an agent. Did the user take the next action, come back the following week, adopt the feature the agent pointed them to? That data only exists if the agent's events sit in the same stream as everything else the user does in your product.</p>
+  </div>
+
+  <div class="panel" role="tabpanel" id="panel-4" aria-labelledby="tab-4" hidden>
+    <p class="question">Did the business outcome move?</p>
+    <p class="body">Retention, conversion, expansion, cost. In Kirkpatrick's world this is the level executives always asked for and almost no training team could ever produce. For agents it's "what is this thing worth," and answering it means tying every agent interaction back to revenue for an individual user.</p>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+
+    function select(tab) {
+      tabs.forEach(function (t) {
+        var selected = t === tab;
+        t.setAttribute('aria-selected', selected ? 'true' : 'false');
+        t.tabIndex = selected ? 0 : -1;
+        document.getElementById(t.getAttribute('aria-controls')).hidden = !selected;
+      });
+    }
+
+    tabs.forEach(function (tab, i) {
+      tab.addEventListener('click', function () { select(tab); });
+      tab.addEventListener('keydown', function (e) {
+        var next;
+        if (e.key === 'ArrowRight') next = tabs[(i + 1) % tabs.length];
+        else if (e.key === 'ArrowLeft') next = tabs[(i - 1 + tabs.length) % tabs.length];
+        else if (e.key === 'Home') next = tabs[0];
+        else if (e.key === 'End') next = tabs[tabs.length - 1];
+        if (next) { e.preventDefault(); select(next); next.focus(); }
+      });
+    });
+  })();
+</script>
+</body>
+</html>
