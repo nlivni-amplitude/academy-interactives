@@ -58,20 +58,21 @@
     border-bottom-color: var(--accent);
   }
   .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
-  .panel { min-height: 210px; }
+  .panel { min-height: 250px; }
   .panel[hidden] { display: none; }
   .question {
     font-size: 16px;
     font-weight: 600;
     color: var(--text);
-    margin: 0 0 8px;
+    margin: 0 0 10px;
   }
   .body {
     font-size: 17px;
-    line-height: 1.55;
+    line-height: 1.5;
     color: var(--text);
-    margin: 0;
   }
+  .body p { margin: 0 0 10px; }
+  .body p:last-child { margin-bottom: 0; }
   .body a { color: var(--accent); }
   .body a:visited { color: var(--accent); }
 </style>
@@ -97,22 +98,37 @@
 
   <div class="panel" role="tabpanel" id="panel-1" aria-labelledby="tab-1">
     <p class="question">Did people like it?</p>
-    <p class="body">The thumbs up tells you whether the user liked the answer. Almost nobody leaves one. When Amplitude <a href="https://amplitude.com/blog/how-people-use-agents" target="_blank" rel="noopener">studied 27,000 of its own agent sessions</a>, only about 2.2% of users gave explicit feedback. You can't read the mood of one user in fifty and calling it product health. Also, two users can have completely different experiences and look identical on a reaction metric. Maybe one got their problem solved while another gave up. Both sent the same number of messages.</p>
+    <div class="body">
+      <p>The thumbs up tells you whether the user liked the answer. Almost nobody leaves one.</p>
+      <p>When Amplitude <a href="https://amplitude.com/blog/how-people-use-agents" target="_blank" rel="noopener">studied 27,000 of its own agent sessions</a>, only about 2.2% of users gave explicit feedback. You can't read the mood of one user in fifty and calling it product health.</p>
+      <p>Also, two users can have completely different experiences and look identical on a reaction metric. Maybe one got their problem solved while another gave up. Both sent the same number of messages.</p>
+    </div>
   </div>
 
   <div class="panel" role="tabpanel" id="panel-2" aria-labelledby="tab-2" hidden>
     <p class="question">Did they pick up the skill?</p>
-    <p class="body">In training this is the post-test. For an agent it's the eval. Did the response answer the question, stay on task, respect the user's constraints. This is where LLM-as-judge scoring and quality rubrics live, and it's a real step up from "did they like it." It still doesn't answer what the agent is worth.</p>
+    <div class="body">
+      <p>In training this is the post-test. For an agent it's the eval.</p>
+      <p>Did the response answer the question, stay on task, respect the user's constraints.</p>
+      <p>This is where LLM-as-judge scoring and quality rubrics live, and it's a real step up from "did they like it." It still doesn't answer what the agent is worth.</p>
+    </div>
   </div>
 
   <div class="panel" role="tabpanel" id="panel-3" aria-labelledby="tab-3" hidden>
     <p class="question">Did they do anything differently afterward?</p>
-    <p class="body">A good post-test score means nothing if the learner never changes how they work, and the same holds for an agent. Did the user take the next action, come back the following week, adopt the feature the agent pointed them to? This data only exists if the agent's events sit in the same stream as everything else the user does in your product.</p>
+    <div class="body">
+      <p>A good post-test score means nothing if the learner never changes how they work, and the same holds for an agent.</p>
+      <p>Did the user take the next action, come back the following week, adopt the feature the agent pointed them to?</p>
+      <p>This data only exists if the agent's events sit in the same stream as everything else the user does in your product.</p>
+    </div>
   </div>
 
   <div class="panel" role="tabpanel" id="panel-4" aria-labelledby="tab-4" hidden>
     <p class="question">Did the business outcome move?</p>
-    <p class="body">Retention, conversion, expansion, cost. In Kirkpatrick's world this is the level executives always asked for and most training teams can't produce. For agents it's "what is this thing worth," and answering it means tying every agent interaction back to revenue for an individual user.</p>
+    <div class="body">
+      <p>Retention, conversion, expansion, cost. In Kirkpatrick's world this is the level executives always asked for and most training teams can't produce.</p>
+      <p>For agents it's "what is this thing worth," and answering it means tying every agent interaction back to revenue for an individual user.</p>
+    </div>
   </div>
 </div>
 
