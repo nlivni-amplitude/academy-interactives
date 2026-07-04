@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session list tour</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif;
+    color: #000; background: #fff; padding: 8px;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  .hint {
+    font-size: 13px; color: #555; margin: 0 2px 8px;
+  }
+  .hint b { color: #1E61F0; font-weight: 600; }
+  .stage { position: relative; width: 100%; border: 1px solid #e6e6e6; border-radius: 8px; overflow: hidden; }
+  .stage img { display: block; width: 100%; height: auto; }
+  .pin {
+    position: absolute; transform: translate(-50%, -50%);
+    width: 30px; height: 30px; border-radius: 50%;
+    background: #1E61F0; color: #fff; border: 3px solid #fff;
+    box-shadow: 0 1px 5px rgba(0,0,0,.35);
+    font-size: 15px; font-weight: 700; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: transform .12s ease, box-shadow .12s ease;
+    z-index: 2;
+  }
+  .pin:hover { transform: translate(-50%, -50%) scale(1.15); }
+  .pin.active { background: #0f172a; box-shadow: 0 0 0 6px rgba(30,97,240,.28), 0 1px 5px rgba(0,0,0,.35); }
+  .caption {
+    margin-top: 12px; padding: 14px 16px;
+    border: 1px solid #e6e6e6; border-left: 4px solid #1E61F0; border-radius: 8px;
+    background: #f7f9ff; min-height: 62px;
+  }
+  .caption .num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 20px; height: 20px; border-radius: 50%; background: #1E61F0; color: #fff;
+    font-size: 12px; font-weight: 700; margin-right: 8px; vertical-align: 2px;
+  }
+  .caption .label { font-weight: 700; font-size: 17px; }
+  .caption .desc { font-size: 16px; color: #1f2937; margin-top: 5px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="hint">Click a <b>numbered marker</b> to see what each part of the session list does.</p>
+  <div class="stage" id="stage">
+    <img src="assets/session-list.png" alt="Amplitude Session Replay: the All Replays session list in the AmpliStore project">
+    <!-- pins injected by JS -->
+  </div>
+  <div class="caption" id="caption" aria-live="polite"></div>
+</div>
+<script>
+  var HOTSPOTS = [
+    { n: 1, x: 8,  y: 60, label: "Experience Analytics", desc: "The navigation section where Session Replay lives, alongside Heatmaps and Zoning Insights." },
+    { n: 2, x: 48, y: 33, label: "Session list", desc: "The main surface. Each row is one recorded session you can open and watch." },
+    { n: 3, x: 25, y: 23, label: "Filter panel", desc: "Narrow the list by event, user property, frustration signal, or sentiment." },
+    { n: 4, x: 85, y: 59, label: "Session card", desc: "Shows duration, user identifier, and frustration badges like rage click and TRC." }
+  ];
+  var stage = document.getElementById("stage");
+  var caption = document.getElementById("caption");
+  var pins = [];
+
+  function show(i) {
+    HOTSPOTS.forEach(function (h, j) { pins[j].classList.toggle("active", j === i); });
+    var h = HOTSPOTS[i];
+    caption.innerHTML = '<span class="num">' + h.n + '</span>' +
+      '<span class="label">' + h.label + '</span>' +
+      '<div class="desc">' + h.desc + '</div>';
+  }
+
+  HOTSPOTS.forEach(function (h, i) {
+    var p = document.createElement("button");
+    p.className = "pin";
+    p.type = "button";
+    p.style.left = h.x + "%";
+    p.style.top = h.y + "%";
+    p.textContent = h.n;
+    p.setAttribute("aria-label", h.label);
+    p.addEventListener("click", function () { show(i); });
+    stage.appendChild(p);
+    pins.push(p);
+  });
+
+  show(0);
+</script>
+</body>
+</html>
