@@ -58,7 +58,7 @@
     </div>
   </div>
 
-  <div class="callout">The gate is a sticky note on the fridge that says "dessert is allowed," and the app checks the fridge every morning. Archiving throws the note away, and code that finds no note assumes the answer is no. If the <code>checkGate()</code> call is still in the app when the note disappears, dessert vanishes for everyone at once.</div>
+  <div class="callout"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#1E61F0;margin-bottom:6px;">Explained in non-technical terms</div>The gate is a sticky note on the fridge that says "dessert is allowed," and the app checks the fridge every morning. Archiving throws the note away, and code that finds no note assumes the answer is no. If the <code>checkGate()</code> call is still in the app when the note disappears, dessert vanishes for everyone at once.</div>
 
   <p class="close">The order that avoids it: remove the check from the code, deploy, then archive. Two related safe-ops habits sit alongside this one. Saving an override touches production users, so it needs launch permission, not just edit access. And when you want proof the feature caused a metric to move rather than a signal that it might have, graduating the gate to an experiment keeps the targeting and adds the randomization that makes the result causal.</p>
 </div>
