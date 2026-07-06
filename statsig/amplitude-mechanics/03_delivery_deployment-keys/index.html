@@ -41,7 +41,7 @@
     <div class="read" id="read">One experiment, three surfaces, three keys. Deliver the flag and see which door it's allowed through.</div>
   </div>
 
-  <div class="callout">Deployments are name badges for each door of the shop: the website door, the app door, and the kitchen door in back. A flag is only handed out at doors you've badged. The kitchen badge, the server key, is powerful and stays secret. The front-door badges, client keys, are safe to show in public. Wrong badge at the wrong door and nothing gets through.</div>
+  <div class="callout"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#1E61F0;margin-bottom:6px;">Explained in non-technical terms</div>Deployments are name badges for each door of the shop: the website door, the app door, and the kitchen door in back. A flag is only handed out at doors you've badged. The kitchen badge, the server key, is powerful and stays secret. The front-door badges, client keys, are safe to show in public. Wrong badge at the wrong door and nothing gets through.</div>
 
   <p class="close">At AmpliStore the dynamic-pricing experiment is attached only to the pricing-service deployment, so the web bundle can never leak the price logic into view-source, and each surface's data stays cleanly attributed to its own key. The rule that keeps you safe: never embed a server key in client code, since anyone with dev tools can read it. One deployment per surface keeps the blast radius of a mistake small.</p>
 </div>
