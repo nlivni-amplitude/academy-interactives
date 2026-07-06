@@ -30,7 +30,7 @@
     <div class="read" id="read"></div>
   </div>
 
-  <div class="callout">Each arm is a bell curve of where its true rate might sit, given the noise. When the curves sit almost on top of each other, a gap that size shows up by luck all the time. As the real difference grows, the curves pull apart until the overlap is small enough that noise alone can't explain it. The bigger the gap and the tighter each curve, the easier the call.</div>
+  <div class="callout"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#1E61F0;margin-bottom:6px;">Explained in non-technical terms</div>Each arm is a bell curve of where its true rate might sit, given the noise. When the curves sit almost on top of each other, a gap that size shows up by luck all the time. As the real difference grows, the curves pull apart until the overlap is small enough that noise alone can't explain it. The bigger the gap and the tighter each curve, the easier the call.</div>
 
   <p class="close">On the AmpliStore shade-finder quiz, roughly 50,000 shoppers per arm and a p-value of 0.008 put the curves far enough apart to call it signal and ship. Statsig runs this as its default engine, a two-sample z-test that switches to Welch's t-test for small samples. Amplitude offers the same Welch's t-test as its fixed-horizon option.</p>
 </div>
