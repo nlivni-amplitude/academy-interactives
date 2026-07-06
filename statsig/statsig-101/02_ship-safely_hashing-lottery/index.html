@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why your test account isn't in the rollout</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .cap { font-size: 13px; color: #555; margin-bottom: 12px; }
+  .btnrow { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  button { font-family: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: 1.5px solid #1E61F0; background: #1E61F0; color: #fff; cursor: pointer; }
+  button.alt { background: #fff; color: #1E61F0; }
+  button:hover { opacity: 0.85; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .ticket { width: 76px; padding: 8px 6px; border-radius: 8px; border: 1.5px solid #e0e0e0; text-align: center; font-size: 12px; }
+  .ticket .num { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
+  .ticket.pass { border-color: #1E61F0; background: #f4f7fe; color: #0d3a9e; }
+  .ticket.fail { color: #777; }
+  .verdict { font-size: 14px; font-weight: 500; padding: 10px 12px; border-radius: 8px; background: #f4f7fe; color: #0d3a9e; min-height: 20px; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin-bottom: 16px; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">You set a gate to 30% and one of your own test accounts doesn't get it. Nothing's broken. Every user got a number the moment they were first evaluated, and that number never changes.</p>
+
+  <div class="stage">
+    <div class="cap">8 users, gate set to 30%. Each one gets a fixed number from 0-99 the first time the gate checks them. Under 30 passes.</div>
+    <div class="btnrow">
+      <button onclick="assignAndRun()">Evaluate the gate</button>
+      <button class="alt" onclick="rerun()">Re-run, same users</button>
+    </div>
+    <div class="row" id="tickets"></div>
+    <div class="verdict" id="verdict">Run it once to assign numbers.</div>
+  </div>
+
+  <div class="callout">It's less a coin flip and more a locker number stamped on an ID card. The same person always opens the same locker, but nobody hands you a form to pick which locker you get. If a specific account needs in, an override skips the number entirely, it doesn't reassign it.</div>
+
+  <p class="close">Re-running just re-checked the same locker numbers against the same threshold. That's why two evaluations back to back never disagree, and why "it worked yesterday, why not today" almost always means the rollout percentage changed, not that the math got flaky.</p>
+</div>
+
+<script>
+let tickets = null;
+
+function render(threshold) {
+  document.getElementById('tickets').innerHTML = tickets.map((n, i) => {
+    const pass = n < threshold;
+    return `<div class="ticket ${pass ? 'pass' : 'fail'}"><div class="num">${n}</div>user ${i + 1}<br>${pass ? 'in' : 'out'}</div>`;
+  }).join('');
+}
+
+function assignAndRun() {
+  if (!tickets) {
+    tickets = Array.from({length: 8}, () => Math.floor(Math.random() * 100));
+  }
+  render(30);
+  const passCount = tickets.filter(n => n < 30).length;
+  document.getElementById('verdict').textContent =
+    `${passCount} of 8 users landed under 30 and passed. Their numbers didn't change, only the threshold decides who's in.`;
+}
+
+function rerun() {
+  if (!tickets) { assignAndRun(); return; }
+  render(30);
+  document.getElementById('verdict').textContent =
+    'Same 8 numbers, same result. Nothing reshuffles between runs, that\'s what deterministic means.';
+}
+</script>
+</body>
+</html>
