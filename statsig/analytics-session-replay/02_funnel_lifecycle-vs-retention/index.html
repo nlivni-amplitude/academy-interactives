@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The flat DAU that was quietly rotting</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .btns { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  button { font-family: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: 1.5px solid #1E61F0; background: #1E61F0; color: #fff; cursor: pointer; }
+  button.ghost { background: #fff; color: #1E61F0; }
+  button:hover { opacity: 0.85; }
+  .chart { display: flex; align-items: flex-end; gap: 12px; height: 150px; }
+  .col { flex: 1; display: flex; flex-direction: column-reverse; height: 100%; border-radius: 4px 4px 0 0; overflow: hidden; }
+  .seg { transition: height 0.6s ease; width: 100%; }
+  .seg.flat { background: #1E61F0; }
+  .seg.recurring { background: #1D9E75; }
+  .seg.resurrected { background: #EF9F27; }
+  .seg.newu { background: #85B7EB; }
+  .labels { display: flex; gap: 12px; margin-top: 6px; }
+  .labels span { flex: 1; text-align: center; font-size: 11px; color: #666; }
+  .legend { display: flex; gap: 14px; font-size: 12px; color: #666; margin-top: 10px; flex-wrap: wrap; }
+  .legend.hidden { display: none; }
+  .legend i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; margin-right: 5px; vertical-align: -1px; }
+  .msg { font-size: 13px; color: #666; margin-top: 8px; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">Six weeks of daily active users. The total is flat, so at a glance nothing's wrong. Retention asks whether your users came back. Lifecycle asks who's actually in the room, and that's a different, more honest question.</p>
+
+  <div class="stage">
+    <div class="btns">
+      <button onclick="reveal()">Reveal the composition</button>
+      <button class="ghost" onclick="reset()">Reset</button>
+    </div>
+    <div class="chart" id="chart"></div>
+    <div class="labels"><span>W1</span><span>W2</span><span>W3</span><span>W4</span><span>W5</span><span>W6</span></div>
+    <div class="legend hidden" id="legend">
+      <span><i style="background:#1D9E75"></i>recurring</span>
+      <span><i style="background:#85B7EB"></i>new</span>
+      <span><i style="background:#EF9F27"></i>resurrected</span>
+    </div>
+    <div class="msg" id="msg">Total DAU each week. Looks flat, looks fine. Reveal what it's made of.</div>
+  </div>
+
+  <div class="callout">The class photo has 30 kids every week, same headcount. But look closely: your loyal friends keep leaving, and their seats fill with kids who quit last year wandering back for a day. Same number, sicker room. Retention asks whether your friends came back. Lifecycle asks who's in the room right now.</div>
+
+  <p class="close">The flat line was hiding a shift: recurring users shrinking week over week, propped up by new and resurrected users cycling through. This maps almost one to one with Amplitude's Lifecycle and User Composition chart, with the same four states, new, recurring, resurrected, dormant. The only wording difference is that Amplitude may say "returning" where Statsig says "resurrected."</p>
+</div>
+
+<script>
+// each week: [recurring, new, resurrected] summing to ~30
+const weeks = [
+  [22, 6, 2],
+  [20, 6, 4],
+  [17, 7, 6],
+  [14, 8, 8],
+  [11, 9, 10],
+  [8, 10, 12]
+];
+const chart = document.getElementById('chart');
+function build(flat) {
+  chart.innerHTML = '';
+  weeks.forEach(w => {
+    const total = w[0] + w[1] + w[2];
+    const col = document.createElement('div');
+    col.className = 'col';
+    if (flat) {
+      const seg = document.createElement('div');
+      seg.className = 'seg flat';
+      seg.style.height = '100%';
+      col.appendChild(seg);
+    } else {
+      [['recurring', w[0]], ['newu', w[1]], ['resurrected', w[2]]].forEach(([cls, v]) => {
+        const seg = document.createElement('div');
+        seg.className = 'seg ' + cls;
+        seg.style.height = (v / total * 100) + '%';
+        col.appendChild(seg);
+      });
+    }
+    // normalize total height so all columns are same height (flat DAU)
+    col.style.height = '100%';
+    chart.appendChild(col);
+  });
+}
+function reveal() {
+  build(false);
+  document.getElementById('legend').classList.remove('hidden');
+  document.getElementById('msg').textContent =
+    'Same total every week, but recurring users (green) are shrinking while new and resurrected fill the gap. The base was rotting under a flat line.';
+}
+function reset() {
+  build(true);
+  document.getElementById('legend').classList.add('hidden');
+  document.getElementById('msg').textContent =
+    'Total DAU each week. Looks flat, looks fine. Reveal what it\'s made of.';
+}
+build(true);
+</script>
+</body>
+</html>
