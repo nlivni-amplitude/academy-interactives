@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The thirty seconds before the trigger</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  button { font-family: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: 1.5px solid #1E61F0; background: #1E61F0; color: #fff; cursor: pointer; margin-bottom: 16px; }
+  button:hover { opacity: 0.85; }
+  .track { position: relative; height: 44px; border-radius: 8px; background: #eceef2; overflow: hidden; margin-bottom: 8px; }
+  .buf { position: absolute; top: 0; bottom: 0; background: #FAC775; width: 0; transition: width 0.1s linear; }
+  .rec { position: absolute; top: 0; bottom: 0; background: #9FE1CB; width: 0; transition: width 0.1s linear; }
+  .cursor { position: absolute; top: -4px; bottom: -4px; width: 2px; background: #000; left: 0; transition: left 0.1s linear; }
+  .mark { position: absolute; top: -20px; left: 45%; font-size: 11px; font-weight: 600; color: #0f6e56; white-space: nowrap; transform: translateX(-50%); }
+  .msg { font-size: 14px; font-weight: 500; padding: 10px 12px; border-radius: 8px; background: #f4f7fe; color: #0d3a9e; margin-top: 22px; }
+  .legend { display: flex; gap: 16px; font-size: 12px; color: #666; margin-top: 10px; flex-wrap: wrap; }
+  .legend i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; margin-right: 5px; vertical-align: -1px; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">Your trigger records a session when a user is assigned to treatment. A shopper browses for 45 seconds before that assignment fires. You still get the last 30 of those seconds, because the recorder was quietly holding them the whole time.</p>
+
+  <div class="stage">
+    <button onclick="play()">Play the session</button>
+    <div class="track" id="track">
+      <div class="buf" id="buf"></div>
+      <div class="rec" id="rec"></div>
+      <div class="cursor" id="cursor"></div>
+      <div class="mark">assigned to treatment, t=45s</div>
+    </div>
+    <div class="legend">
+      <span><i style="background:#eceef2"></i>not captured</span>
+      <span><i style="background:#FAC775"></i>30s rewind buffer</span>
+      <span><i style="background:#9FE1CB"></i>recording</span>
+    </div>
+    <div class="msg" id="msg">The shopper lands and browses. Nothing is saved yet, but the last 30 seconds are always being held.</div>
+  </div>
+
+  <div class="callout">It's a dashcam. It's always quietly remembering the last 30 seconds, and it only saves the footage when something interesting happens, the trigger. So when the crash happens, you also get the 30 seconds leading up to it, the context that explains what the driver was reacting to.</div>
+
+  <p class="close">The buffer means you see the last 30 seconds before assignment plus everything after, so you watch what the shopper hit right before the moment you care about. Triggers can fire on an individual gate exposure, a specific experiment variant, all exposures at once, or any specific event. And the recording is focused: you're not drowning in the whole session library, just the treatment sessions that dropped at the step you're investigating.</p>
+</div>
+
+<script>
+const total = 75; // seconds mapped across the track: 0..75, assignment at 45
+function pct(sec) { return sec / total * 100; }
+function play() {
+  const buf = document.getElementById('buf'), rec = document.getElementById('rec'), cursor = document.getElementById('cursor');
+  buf.style.width = '0'; rec.style.width = '0'; cursor.style.left = '0';
+  const msg = document.getElementById('msg');
+  let t = 0;
+  const timer = setInterval(() => {
+    t += 1;
+    cursor.style.left = pct(t) + '%';
+    if (t < 45) {
+      // buffer trails the cursor by up to 30s
+      const bufStart = Math.max(0, t - 30);
+      buf.style.left = pct(bufStart) + '%';
+      buf.style.width = (pct(t) - pct(bufStart)) + '%';
+      msg.textContent = 'Browsing at ' + t + 's. The amber buffer holds only the most recent 30 seconds, older footage falls off the back.';
+    } else if (t === 45) {
+      msg.textContent = 'Assigned to treatment. The recorder saves the 30s buffer and starts capturing everything from here.';
+    } else {
+      const recStart = 15; // 45 - 30
+      rec.style.left = pct(recStart) + '%';
+      rec.style.width = (pct(t) - pct(recStart)) + '%';
+      buf.style.width = '0';
+      msg.textContent = 'Recording. You now have the 30s before assignment (' + recStart + 's onward) plus everything after.';
+    }
+    if (t >= total) {
+      clearInterval(timer);
+      msg.textContent = 'Saved: the 30 seconds of pre-assignment context plus the full post-assignment session. The 15s before that were never captured.';
+    }
+  }, 80);
+}
+</script>
+</body>
+</html>
