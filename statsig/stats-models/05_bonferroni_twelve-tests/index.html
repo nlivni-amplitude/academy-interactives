@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why checking twelve metrics invents a winner</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 14px; }
+  .cell { aspect-ratio: 1.4; border-radius: 6px; background: #eceef2; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #888; text-align: center; transition: all 0.3s; padding: 2px; }
+  .cell.win { background: #e0554a; color: #fff; font-weight: 600; }
+  .cell.real { background: #1E61F0; color: #fff; font-weight: 600; }
+  .btns { display: flex; gap: 10px; flex-wrap: wrap; }
+  button { font-family: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: 1.5px solid #1E61F0; background: #1E61F0; color: #fff; cursor: pointer; }
+  button.ghost { background: #fff; color: #1E61F0; }
+  button:hover { opacity: 0.85; }
+  .read { font-size: 14px; font-weight: 500; padding: 10px 12px; border-radius: 8px; background: #f4f7fe; color: #0d3a9e; margin-top: 12px; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">The growth PM ships one homepage test at AmpliStore but attaches twelve metrics to it: revenue, average order value, quiz starts, wishlist adds, reviews read. At the usual bar, there's roughly a 46% chance at least one of them looks like a win purely by luck.</p>
+
+  <div class="stage">
+    <div class="grid" id="grid"></div>
+    <div class="btns">
+      <button onclick="run(false)">Run 12 metrics, no correction</button>
+      <button class="ghost" onclick="run(true)">Run with Bonferroni</button>
+    </div>
+    <div class="read" id="read">Only one of these twelve metrics reflects a real effect. Run it both ways and watch what "wins."</div>
+  </div>
+
+  <div class="callout">Make one wish and it comes true, that's magic. Make twelve wishes and one comes true, that's just odds. Checking twelve metrics is making twelve wishes: one tends to clear the bar by chance alone. Bonferroni's rule is that the more metrics you check, the stronger the proof each one has to show before you believe it.</div>
+
+  <p class="close">Without correction the fake "wishlist adds +9%" lights up alongside the one real effect, and you can't tell them apart. Bonferroni divides the bar across the twelve, roughly 0.004 each, and the luck-driven win disappears. Statsig offers it as an option plus Benjamini-Hochberg as a less strict alternative Amplitude doesn't have. Amplitude applies it automatically for multi-metric tests and turns it off under Bayesian, which controls false positives its own way.</p>
+</div>
+
+<script>
+const LABELS = ['Revenue', 'AOV', 'Quiz starts', 'Wishlist', 'Reviews', 'Signups', 'Add to bag', 'Search', 'Shares', 'Returns', 'Scroll', 'Time on page'];
+const REAL = 0; // revenue is the one true effect
+const LUCK = [3, 8]; // wishlist and returns light up by chance without correction
+const grid = document.getElementById('grid');
+function render(states) {
+  grid.innerHTML = LABELS.map((l, i) =>
+    `<div class="cell ${states[i] || ''}">${l}${states[i] === 'win' ? ' +9%' : states[i] === 'real' ? ' +4%' : ''}</div>`
+  ).join('');
+}
+function run(corrected) {
+  const states = LABELS.map(() => '');
+  states[REAL] = 'real';
+  if (!corrected) {
+    LUCK.forEach(i => states[i] = 'win');
+    render(states);
+    document.getElementById('read').textContent =
+      'No correction. The real revenue win shows, but two metrics also "win" on pure luck. You can\'t tell the real one from the accidents.';
+  } else {
+    render(states);
+    document.getElementById('read').textContent =
+      'Bonferroni applied. Each metric now needs about 0.004 to count, so the luck-driven wins vanish and only the real revenue effect survives.';
+  }
+}
+render(['real', '', '', '', '', '', '', '', '', '', '', '']);
+</script>
+</body>
+</html>
