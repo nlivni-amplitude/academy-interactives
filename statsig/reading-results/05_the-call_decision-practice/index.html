@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ship, keep running, or kill</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin-bottom: 18px; }
+  .scen { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 16px 18px; margin-bottom: 14px; }
+  .scen .q { font-size: 14.5px; line-height: 1.6; margin-bottom: 12px; }
+  .scen .q b { font-weight: 600; }
+  .opts { display: flex; flex-direction: column; gap: 8px; }
+  .opt { text-align: left; font-family: inherit; font-size: 14px; padding: 10px 13px; border-radius: 8px; border: 1.5px solid #d8dce4; background: #fff; color: #222; cursor: pointer; }
+  .opt:hover { border-color: #1E61F0; }
+  .opt.correct { border-color: #1D9E75; background: #edf8f3; }
+  .opt.wrong { border-color: #d0784a; background: #fbf1eb; opacity: 0.85; }
+  .fb { font-size: 13.5px; line-height: 1.6; color: #222; margin-top: 12px; padding: 11px 13px; background: #f4f7fe; border-radius: 8px; display: none; }
+  .fb.show { display: block; }
+  .fb b { font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">The scorecard is clean, no sample ratio mismatch, participation looks sane. Now comes the actual decision. Each scenario below has a defensible call and some tempting wrong ones. Pick one to see the reasoning.</p>
+
+  <div class="callout">The synthesis routine, every time: start with the primary, check the secondaries agree with it, then walk every guardrail. A clear primary win with all guardrails within tolerance is a ship. A guardrail regression that's statistically real is an investigation first. A primary interval still crossing zero with planned time left is a keep-running.</div>
+
+  <div class="scen" data-answer="1">
+    <div class="q"><b>Scenario 1.</b> Primary is +3.0%, CI [+0.5%, +5.5%]. The error-rate guardrail is +2.0%, CI [+0.1%, +3.9%]. Both p under 0.05. The PM says the primary is clearly positive, ship it.</div>
+    <div class="opts">
+      <button class="opt" onclick="pick(this)">Ship it</button>
+      <button class="opt" onclick="pick(this)">Investigate the errors first</button>
+      <button class="opt" onclick="pick(this)">Keep running for more data</button>
+    </div>
+    <div class="fb"><b>Investigate first.</b> Both intervals exclude zero, so the guardrail regression is exactly as real as the win. There are three defensible moves: ship and fix if the cause is known and benign, ship and instrument, or hold. "Ship because the primary is stronger" isn't one of them, a real win and a real regression are both true at once.</div>
+  </div>
+
+  <div class="scen" data-answer="2">
+    <div class="q"><b>Scenario 2.</b> Primary is +12%, CI [-3%, +27%], p = 0.10. You've run 6 of 14 planned days. The manager says it's not significant, kill it.</div>
+    <div class="opts">
+      <button class="opt" onclick="pick(this)">Kill it, no effect</button>
+      <button class="opt" onclick="pick(this)">Ship it, +12% is huge</button>
+      <button class="opt" onclick="pick(this)">Keep running, it's underpowered not null</button>
+    </div>
+    <div class="fb"><b>Keep running.</b> A p-value above 0.05 means not enough data to confirm, not that the effect is zero. The point estimate is large and the planned duration isn't done. Let it reach the horizon you committed to before you started, then make the call.</div>
+  </div>
+
+  <div class="scen" data-answer="0">
+    <div class="q"><b>Scenario 3.</b> Primary is +2.1%, CI [+0.8%, +3.4%]. Every guardrail is flat with intervals hugging zero. You ran the full planned duration and the secondaries are consistent.</div>
+    <div class="opts">
+      <button class="opt" onclick="pick(this)">Ship it</button>
+      <button class="opt" onclick="pick(this)">Run two more weeks to be extra sure</button>
+      <button class="opt" onclick="pick(this)">Re-run the experiment to confirm</button>
+    </div>
+    <div class="fb"><b>Ship.</b> This is the clean case: a real primary win, consistent secondaries, quiet guardrails, and the full duration honored. Re-running forever has a cost too, both the opportunity you're sitting on and the multiple-testing risk of looking again and again. Make the call.</div>
+  </div>
+</div>
+
+<script>
+function pick(btn) {
+  const scen = btn.closest('.scen');
+  if (scen.classList.contains('answered')) return;
+  scen.classList.add('answered');
+  const answer = +scen.dataset.answer;
+  const opts = [...scen.querySelectorAll('.opt')];
+  const idx = opts.indexOf(btn);
+  opts[answer].classList.add('correct');
+  if (idx !== answer) btn.classList.add('wrong');
+  scen.querySelector('.fb').classList.add('show');
+}
+</script>
+</body>
+</html>
