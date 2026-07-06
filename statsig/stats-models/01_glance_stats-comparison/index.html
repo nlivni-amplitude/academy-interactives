@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Same stats toolbox, different defaults</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; vertical-align: top; }
+  th { font-size: 12px; color: #666; font-weight: 600; }
+  td.concept { font-weight: 600; white-space: nowrap; }
+  .pill { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 5px; white-space: nowrap; display: inline-block; margin-bottom: 3px; }
+  .pill.default { background: #e1f5ee; color: #0f6e56; }
+  .pill.option { background: #faeeda; color: #854f0b; }
+  .pill.none { background: #f1f0ec; color: #5f5e5a; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">Both platforms carry the same statistical toolbox. The difference that trips people up is the default: Amplitude runs sequential testing out of the box so you can peek anytime, while Statsig defaults to fixed-horizon frequentist and offers sequential, SPRT, and Bayesian as opt-in modes.</p>
+
+  <div class="callout">The concepts below are the same math on both sides. What changes is which one is on by default and how visibly it's surfaced. Knowing that lets you answer "does Statsig have X" without hedging: usually yes, the real question is whether it's the default or a toggle.</div>
+
+  <table>
+    <thead><tr><th>Concept</th><th>Statsig</th><th>Amplitude Experiment</th></tr></thead>
+    <tbody>
+      <tr><td class="concept">T-test / Z-test</td><td><span class="pill default">Default</span> Two-sample z-test, Welch's t for small samples</td><td><span class="pill option">Option</span> Welch's t-test in fixed-horizon mode</td></tr>
+      <tr><td class="concept">CUPED</td><td><span class="pill default">Yes</span> Per-metric, extended as CURE on Warehouse Native</td><td><span class="pill default">Yes</span> Advanced setting, corrects pre-exposure bias</td></tr>
+      <tr><td class="concept">Winsorization</td><td><span class="pill default">Yes</span> Percentile capping per metric, plus exact caps on WHN</td><td><span class="pill default">Yes</span> Configurable percentile plus optional log transform</td></tr>
+      <tr><td class="concept">Bonferroni</td><td><span class="pill option">Option</span> Adjusts across variants and metrics</td><td><span class="pill default">Yes</span> Applied for multi-variant/metric, off in Bayesian</td></tr>
+      <tr><td class="concept">Benjamini-Hochberg</td><td><span class="pill default">Yes</span> Less strict FDR alternative</td><td><span class="pill none">No direct equivalent</span></td></tr>
+      <tr><td class="concept">Sequential testing</td><td><span class="pill option">Option</span> Toggle for early regression detection</td><td><span class="pill default">Default</span> Always-valid p-values, peek anytime</td></tr>
+      <tr><td class="concept">SPRT</td><td><span class="pill option">Option</span> Dedicated analytics type</td><td><span class="pill default">Built in</span> Its sequential engine is mSPRT, same family</td></tr>
+      <tr><td class="concept">Bayesian</td><td><span class="pill option">Option</span> Analytics type, supports priors</td><td><span class="pill option">Option</span> Probability to beat control, expected loss</td></tr>
+      <tr><td class="concept">SRM check</td><td><span class="pill default">Auto</span> Chi-squared health check</td><td><span class="pill default">Auto</span> Chi-squared diagnostic plus troubleshooting flow</td></tr>
+    </tbody>
+  </table>
+</div>
+</body>
+</html>
