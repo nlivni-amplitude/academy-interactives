@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What moved, where, and why</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .chain { display: flex; align-items: stretch; gap: 10px; margin-bottom: 14px; }
+  .link { flex: 1; border: 1.5px solid #e0e0e0; border-radius: 8px; padding: 14px; opacity: 0.45; transition: all 0.4s; }
+  .link.lit { opacity: 1; border-color: #1E61F0; background: #f4f7fe; }
+  .link .q { font-size: 13px; font-weight: 600; color: #1E61F0; margin-bottom: 4px; }
+  .link .name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .link .desc { font-size: 12.5px; color: #555; line-height: 1.45; }
+  .arrow { align-self: center; color: #bbb; font-size: 20px; }
+  button { font-family: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: 1.5px solid #1E61F0; background: #1E61F0; color: #fff; cursor: pointer; }
+  button:hover { opacity: 0.85; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">A metric moved and you need to know why. That's three questions, in order, and each has its own tool. Skip a step and you're guessing.</p>
+
+  <div class="stage">
+    <div class="chain">
+      <div class="link" id="l0"><div class="q">WHAT moved?</div><div class="name">Pulse</div><div class="desc">The aggregate metric effect, with statistical testing to say whether it's real.</div></div>
+      <span class="arrow">→</span>
+      <div class="link" id="l1"><div class="q">WHERE in the flow?</div><div class="name">Funnel split</div><div class="desc">Group by experiment or gate group and find the step where the two lines diverge.</div></div>
+      <span class="arrow">→</span>
+      <div class="link" id="l2"><div class="q">WHY?</div><div class="name">Session Replay</div><div class="desc">Watch the actual sessions of the variant that dropped at that step.</div></div>
+    </div>
+    <button onclick="animate()">Animate the chain</button>
+  </div>
+
+  <div class="callout">Your lemonade stand sold less today, that's the what, the scoreboard. You notice kids walk up, read the price sign, and leave, that's the where, the exact step they quit. So you hide behind the tree and watch, and the new sign is upside down, that's the why, the part you had to see with your own eyes.</div>
+
+  <p class="close">Amplitude runs the same chain daily: experiment results, then a funnel analysis chart, then jump into Session Replay for the users who dropped. The one difference worth keeping in your pocket: Statsig anchors the chain on the experiment or gate exposure, while Amplitude anchors it on the chart. Same investigation, different front door, and it's the theme of all three units.</p>
+</div>
+
+<script>
+function animate() {
+  ['l0','l1','l2'].forEach(id => document.getElementById(id).classList.remove('lit'));
+  let i = 0;
+  const timer = setInterval(() => {
+    if (i > 2) { clearInterval(timer); return; }
+    document.getElementById('l' + i).classList.add('lit');
+    i++;
+  }, 650);
+}
+</script>
+</body>
+</html>
