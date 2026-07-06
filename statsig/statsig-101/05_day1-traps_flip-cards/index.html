@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Four mistakes that show up on day one</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 18px; }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .flip { perspective: 1000px; height: 176px; cursor: pointer; }
+  .flipin { position: relative; width: 100%; height: 100%; transition: transform 0.5s; transform-style: preserve-3d; }
+  .flip.flipped .flipin { transform: rotateY(180deg); }
+  .face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 14px; display: flex; flex-direction: column; justify-content: center; }
+  .face.back { transform: rotateY(180deg); background: #f4f7fe; border-color: #1E61F0; }
+  .lbl { font-size: 11px; font-weight: 600; color: #1E61F0; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.02em; }
+  .face p { font-size: 13.5px; line-height: 1.5; color: #222; }
+  .hint { font-size: 11px; color: #888; margin-top: 8px; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">None of these break the math. They break the read. Tapping a card shows what to check before trusting the number under it.</p>
+
+  <div class="cards">
+    <div class="flip" onclick="this.classList.toggle('flipped')">
+      <div class="flipin">
+        <div class="face front"><span class="lbl">Trap</span><p>"It's been live an hour, the graph already looks great."</p><span class="hint">tap for the check</span></div>
+        <div class="face back"><span class="lbl">Check</span><p>An hour of traffic is a tiny, self-selected slice of the day. Waiting for at least one full cycle of your traffic pattern is what makes the early read trustworthy.</p><span class="hint">tap to flip back</span></div>
+      </div>
+    </div>
+    <div class="flip" onclick="this.classList.toggle('flipped')">
+      <div class="flipin">
+        <div class="face front"><span class="lbl">Trap</span><p>"Traffic split looks close enough, 51/49."</p><span class="hint">tap for the check</span></div>
+        <div class="face back"><span class="lbl">Check</span><p>A split that drifts from what you configured is a sample ratio mismatch, and it usually means something upstream is filtering one arm differently. Worth ruling out before reading any metric under it.</p><span class="hint">tap to flip back</span></div>
+      </div>
+    </div>
+    <div class="flip" onclick="this.classList.toggle('flipped')">
+      <div class="flipin">
+        <div class="face front"><span class="lbl">Trap</span><p>"The primary metric is flat, but three guardrails moved."</p><span class="hint">tap for the check</span></div>
+        <div class="face back"><span class="lbl">Check</span><p>A flat headline metric with guardrails moving in the wrong direction is still a signal. The guardrails exist to catch exactly this, a win that costs you somewhere else.</p><span class="hint">tap to flip back</span></div>
+      </div>
+    </div>
+    <div class="flip" onclick="this.classList.toggle('flipped')">
+      <div class="flipin">
+        <div class="face front"><span class="lbl">Trap</span><p>"New design is winning big in week one."</p><span class="hint">tap for the check</span></div>
+        <div class="face back"><span class="lbl">Check</span><p>Anything new gets extra attention just for being new. Holding the experiment open long enough to see if the lift survives past the first week is what separates novelty from a real preference.</p><span class="hint">tap to flip back</span></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="close">All four are read errors, not calculation errors. The math behind the scorecard was fine the whole time.</p>
+</div>
+</body>
+</html>
