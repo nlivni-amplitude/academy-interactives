@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What the Impact tab is actually showing you</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: end; margin-bottom: 14px; }
+  .col { text-align: center; }
+  .val { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+  .val.obs { color: #1D9E75; }
+  .val.proj { color: #1E61F0; }
+  .track { height: 150px; display: flex; align-items: flex-end; justify-content: center; }
+  .bar { width: 64px; border-radius: 6px 6px 0 0; transition: height 1s ease; }
+  .bar.obs { background: #1D9E75; }
+  .bar.proj { background: #1E61F0; }
+  .lbl { font-size: 13px; color: #444; margin-top: 8px; line-height: 1.4; }
+  button { font-family: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: 1.5px solid #1E61F0; background: #1E61F0; color: #fff; cursor: pointer; }
+  button:hover { opacity: 0.85; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+  .close b { font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">Your experiment ran at 5% rollout and the Impact tab reports 12,000 conversions. You didn't earn 12,000 conversions. The tab is answering a different question than the one most people quote it for.</p>
+
+  <div class="stage">
+    <div class="cols">
+      <div class="col">
+        <div class="val obs" id="obsv">0 conversions</div>
+        <div class="track"><div class="bar obs" id="obsbar" style="height:0"></div></div>
+        <div class="lbl">Observed so far<br>real users at 5% rollout</div>
+      </div>
+      <div class="col">
+        <div class="val proj" id="projv">0 conversions</div>
+        <div class="track"><div class="bar proj" id="projbar" style="height:0"></div></div>
+        <div class="lbl">Impact tab<br>projected if you shipped to 100%</div>
+      </div>
+    </div>
+    <button onclick="run()">Play</button>
+  </div>
+
+  <div class="callout">You sold lemonade on one corner and made six dollars. The Impact tab says every corner in town would make you 120. Maybe, but you haven't made 120, you've made six. It's a forecast built by scaling the observed effect up to full traffic, not a record of conversions that happened.</div>
+
+  <p class="close">The safe sentence: "the Impact tab projects 50,000 subscriptions if we ship to 100%." The unsafe one: "our experiment proved we can add 50,000." The math is valid, the confidence is extrapolated. When a ratio metric shows an infinite relative delta, same spirit: the denominator's interval crosses zero, so the ratio blows up as a display edge case. Read the absolute per-user number instead.</p>
+</div>
+
+<script>
+function run() {
+  document.getElementById('obsbar').style.height = '0';
+  document.getElementById('projbar').style.height = '0';
+  let o = 0, p = 0;
+  const oTarget = 600, pTarget = 12000;
+  document.getElementById('obsbar').style.height = '18px';
+  document.getElementById('projbar').style.height = '150px';
+  const dur = 900, start = performance.now();
+  function tick(now) {
+    const t = Math.min(1, (now - start) / dur);
+    document.getElementById('obsv').textContent = Math.round(oTarget * t).toLocaleString() + ' conversions';
+    document.getElementById('projv').textContent = Math.round(pTarget * t).toLocaleString() + ' conversions';
+    if (t < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+</script>
+</body>
+</html>
