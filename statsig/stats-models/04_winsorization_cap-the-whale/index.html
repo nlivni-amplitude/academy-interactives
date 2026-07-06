@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why one huge order shouldn't decide the test</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .chart { display: flex; align-items: flex-end; gap: 6px; height: 170px; border-bottom: 2px solid #e0e0e0; padding-bottom: 0; position: relative; }
+  .bar { flex: 1; background: #bcd0f5; border-radius: 3px 3px 0 0; transition: height 0.6s ease, background 0.6s ease; min-height: 3px; }
+  .bar.whale { background: #1E61F0; }
+  .bar.capped { background: #1E61F0; }
+  .meanline { position: absolute; left: 0; right: 0; height: 2px; background: #c0392b; transition: bottom 0.6s ease; }
+  .meanlbl { position: absolute; right: 0; font-size: 11px; color: #c0392b; transition: bottom 0.6s ease; background: #fff; padding: 0 4px; }
+  button { font-family: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: 1.5px solid #1E61F0; background: #1E61F0; color: #fff; cursor: pointer; margin-top: 14px; }
+  button.ghost { background: #fff; color: #1E61F0; }
+  button:hover { opacity: 0.85; }
+  .read { font-size: 14px; font-weight: 500; padding: 10px 12px; border-radius: 8px; background: #f4f7fe; color: #0d3a9e; margin-top: 12px; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">During a bundle-pricing test at AmpliStore, a professional makeup artist places one 8,400 dollar stock order and lands in the treatment arm. Treatment now wins on revenue, entirely because of her. Winsorization stops one order from deciding the result.</p>
+
+  <div class="stage">
+    <div class="chart" id="chart">
+      <div class="meanline" id="meanline"></div>
+      <div class="meanlbl" id="meanlbl">mean</div>
+    </div>
+    <button onclick="cap()">Cap at P99</button>
+    <button class="ghost" onclick="reset()">Reset</button>
+    <div class="read" id="read">Raw orders. One reseller order towers over everyone and drags the mean far above what a typical shopper spends.</div>
+  </div>
+
+  <div class="callout">One kid brings 500 marbles to school and suddenly the average kid has 40, which is nonsense. Winsorization says for the math, treat that kid as bringing about the most a normal kid brings. Nobody takes their marbles away, the order still happened, you just don't let a single outlier wreck the average everyone else is being measured against.</div>
+
+  <p class="close">Cap at the 99th percentile, about 450 dollars an order, and the reseller counts as 450. Now the test measures what typical shoppers actually do. Statsig caps per metric and adds exact value capping on Warehouse Native, so you can cap daily purchases at a fixed number to exclude resellers outright. Amplitude offers the percentile cap plus an optional log transform for heavy-tailed metrics, applied after the cap.</p>
+</div>
+
+<script>
+const raw = [40, 55, 30, 60, 45, 70, 35, 50, 65, 42, 58, 48, 900, 38, 52];
+const capVal = 75;
+const chart = document.getElementById('chart');
+let bars = [];
+function render(vals, capped) {
+  chart.querySelectorAll('.bar').forEach(b => b.remove());
+  const max = 950;
+  bars = vals.map((v, i) => {
+    const b = document.createElement('div');
+    b.className = 'bar' + (raw[i] === 900 ? (capped ? ' capped' : ' whale') : '');
+    b.style.height = (v / max * 100) + '%';
+    chart.appendChild(b);
+    return b;
+  });
+  const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+  const bottomPct = (mean / max * 100);
+  document.getElementById('meanline').style.bottom = bottomPct + '%';
+  document.getElementById('meanlbl').style.bottom = (bottomPct + 1) + '%';
+  document.getElementById('meanlbl').textContent = 'mean $' + Math.round(mean * 10);
+}
+function cap() {
+  const capped = raw.map(v => Math.min(v, capVal));
+  render(capped, true);
+  document.getElementById('read').textContent =
+    'Capped at P99. The reseller order is counted as $450, the mean drops back to what typical shoppers spend, and the test measures real behavior again.';
+}
+function reset() {
+  render(raw, false);
+  document.getElementById('read').textContent =
+    'Raw orders. One reseller order towers over everyone and drags the mean far above what a typical shopper spends.';
+}
+render(raw, false);
+</script>
+</body>
+</html>
