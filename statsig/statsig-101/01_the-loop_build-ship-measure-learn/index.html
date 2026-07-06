@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The build, ship, measure, learn loop</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage-wrap { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .loop { display: flex; align-items: stretch; gap: 8px; margin-bottom: 6px; }
+  .stage { flex: 1; border: 1.5px solid #e0e0e0; border-radius: 8px; padding: 12px 10px; cursor: pointer; text-align: center; transition: all 0.2s; }
+  .stage:hover { border-color: #1E61F0; }
+  .stage.active { border-color: #1E61F0; background: #f4f7fe; }
+  .stage .n { font-size: 11px; color: #888; font-weight: 600; }
+  .stage .name { font-size: 14px; font-weight: 600; margin: 3px 0; }
+  .stage .surface { font-size: 11.5px; color: #666; line-height: 1.3; }
+  .arrow { align-self: center; color: #bbb; font-size: 16px; flex-shrink: 0; }
+  .loopback { font-size: 12px; color: #888; text-align: center; margin-bottom: 14px; }
+  .detail { font-size: 14px; line-height: 1.6; padding: 12px 14px; border-radius: 8px; background: #f4f7fe; color: #0d3a9e; min-height: 44px; }
+  .detail b { font-weight: 600; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">The most useful thing to hold in your head with Statsig isn't any single feature. It's which surface does which job as an idea moves from build to live to understood. Four stages, four jobs, and the output of the last one feeds the next.</p>
+
+  <div class="stage-wrap">
+    <div class="loop">
+      <div class="stage" onclick="pick(this,0)"><div class="n">1</div><div class="name">Build</div><div class="surface">define the change</div></div>
+      <span class="arrow">&rarr;</span>
+      <div class="stage" onclick="pick(this,1)"><div class="n">2</div><div class="name">Ship</div><div class="surface">Feature Gates</div></div>
+      <span class="arrow">&rarr;</span>
+      <div class="stage" onclick="pick(this,2)"><div class="n">3</div><div class="name">Measure</div><div class="surface">Experiments + Pulse</div></div>
+      <span class="arrow">&rarr;</span>
+      <div class="stage" onclick="pick(this,3)"><div class="n">4</div><div class="name">Learn</div><div class="surface">Analytics + Session Replay</div></div>
+    </div>
+    <div class="loopback">&#8630; what you learn feeds the next thing you build</div>
+    <div class="detail" id="detail">Tap a stage to see the job it does and the surface that does it.</div>
+  </div>
+
+  <div class="callout"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#1E61F0;margin-bottom:6px;">Explained in non-technical terms</div>It's a kitchen line. Someone plates a new dish (build), a few tables get it first to make sure it doesn't come back to the pass (ship), you compare those tables' checks against everyone else's to see if it actually sells better (measure), and you watch how people eat it to understand why (learn). What you notice changes tomorrow's dish.</div>
+
+  <p class="close">Each surface is a different tool for a different question, and they run in order. A feature gate ships safely but can't prove cause. An experiment proves cause but only after you've shipped something to measure. Analytics and Session Replay explain the result the experiment hands you. Reaching for the wrong surface, like trusting gate metrics as if they were experiment results, is the most common early mistake.</p>
+</div>
+
+<script>
+const stages = [
+  '<b>Build.</b> Define what you want to test: the change itself, and the one metric it should move. This is where a hypothesis lives before any code ships.',
+  '<b>Ship &middot; Feature Gates.</b> Roll the change out safely behind a gate. You control who sees it, ramp the percentage gradually, and keep a kill switch. A gate answers "did this ship safely," not "did it work."',
+  '<b>Measure &middot; Experiments + Pulse.</b> Run it as an experiment with random assignment, then read the Pulse scorecard. Random assignment is what turns "the numbers went up" into "the change caused the numbers to go up."',
+  '<b>Learn &middot; Analytics + Session Replay.</b> Understand what happened and why. Funnels and retention show where in the flow the effect landed; Session Replay shows what users actually experienced. What you learn becomes the next thing you build.'
+];
+function pick(el, i) {
+  document.querySelectorAll('.stage').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('detail').innerHTML = stages[i];
+}
+</script>
+</body>
+</html>
