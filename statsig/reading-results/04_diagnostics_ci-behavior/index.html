@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why a confidence interval is wide, and how it narrows</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .controls { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; font-size: 14px; }
+  .track { position: relative; height: 60px; margin: 8px 0 6px; }
+  .axis { position: absolute; top: 30px; left: 0; right: 0; height: 2px; background: #e0e0e0; }
+  .zero { position: absolute; top: 12px; bottom: 12px; left: 50%; width: 2px; background: #c0392b; }
+  .zerolbl { position: absolute; top: -2px; left: 50%; transform: translateX(-50%); font-size: 11px; color: #c0392b; }
+  .ci { position: absolute; top: 26px; height: 10px; background: #bcd0f5; border-radius: 5px; transition: all 0.4s ease; }
+  .dot { position: absolute; top: 22px; width: 18px; height: 18px; border-radius: 50%; background: #1E61F0; transition: all 0.4s ease; transform: translateX(-50%); }
+  .read { font-size: 14px; font-weight: 500; padding: 10px 12px; border-radius: 8px; background: #f4f7fe; color: #0d3a9e; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">The true effect here is a steady +2.5%. Early on the confidence interval is so wide it crosses zero and you can't call a direction. Drag the days forward and watch the same true effect become readable.</p>
+
+  <div class="stage">
+    <div class="controls">
+      <label>Days of data <input type="range" id="days" min="2" max="21" step="1" value="2" oninput="update(+this.value)"> <b id="dlab">2</b></label>
+    </div>
+    <div class="track">
+      <div class="axis"></div>
+      <div class="zero"></div><div class="zerolbl">0</div>
+      <div class="ci" id="ci"></div>
+      <div class="dot" id="dot"></div>
+    </div>
+    <div class="read" id="read"></div>
+  </div>
+
+  <div class="callout">Guessing candies in a jar: after two peeks your guess is "somewhere between 50 and 500," useless. After a hundred peeks it's "between 180 and 220," useful. A p-value above 0.05 doesn't mean no candy, it means you haven't looked enough yet. The interval shrinks as the data accumulates, and the point estimate was always sitting near the truth.</div>
+
+  <p class="close">This is also why some intervals stay stubbornly wide even with a clean split: heavy-tailed metrics, where most users spend a little and one whale spends a lot, carry huge variance. When one metric row won't tighten, check whether variance reduction is already applied, run it longer, or read a higher-frequency proxy metric instead of waiting on the noisy one.</p>
+</div>
+
+<script>
+const TRUE = 2.5;
+function update(days) {
+  document.getElementById('dlab').textContent = days;
+  // half-width shrinks like 1/sqrt(n): wide at day 2, tight at day 21
+  const half = 9 / Math.sqrt(days);
+  const lo = TRUE - half, hi = TRUE + half;
+  // map -15%..+15% to 0..100%
+  const toPct = v => ((v + 15) / 30) * 100;
+  const ci = document.getElementById('ci'), dot = document.getElementById('dot');
+  ci.style.left = toPct(lo) + '%';
+  ci.style.width = (toPct(hi) - toPct(lo)) + '%';
+  dot.style.left = toPct(TRUE) + '%';
+  const crosses = lo < 0;
+  const sign = v => (v >= 0 ? '+' : '') + v.toFixed(1) + '%';
+  document.getElementById('read').textContent =
+    'Day ' + days + ' - CI [' + sign(lo) + ', ' + sign(hi) + '] - ' +
+    (crosses ? 'crosses zero, direction not callable yet' : 'stays above zero, the +2.5% is now readable');
+}
+update(2);
+</script>
+</body>
+</html>
