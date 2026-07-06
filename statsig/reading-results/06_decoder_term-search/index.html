@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statsig to Amplitude term decoder</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 14px; }
+  .search { width: 100%; font-family: inherit; font-size: 14px; padding: 10px 12px; border: 1.5px solid #d8dce4; border-radius: 8px; margin-bottom: 14px; }
+  .search:focus { outline: none; border-color: #1E61F0; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { padding: 9px 10px; text-align: left; border-bottom: 1px solid #eee; vertical-align: top; }
+  th { font-size: 12px; color: #666; font-weight: 600; }
+  td.term { font-weight: 600; white-space: nowrap; }
+  .mq { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 5px; white-space: nowrap; }
+  .mq.close { background: #e1f5ee; color: #0f6e56; }
+  .mq.partial { background: #faeeda; color: #854f0b; }
+  .mq.none { background: #f1f0ec; color: #5f5e5a; }
+  .empty { padding: 16px 0; color: #888; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">Every term that made you stop and reread, with what it maps to on the Amplitude side. Green is a close match, amber is partial, gray means no real equivalent. Type to filter.</p>
+  <input class="search" id="search" placeholder="Try: pulse, gate, CUPED, layer, exposure">
+  <table>
+    <thead><tr><th>Statsig term</th><th>What it means</th><th>Amplitude equivalent</th><th>Match</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+<script>
+const TERMS = [
+  ["Pulse / Scorecard", "The results view: lift, confidence interval, and p-value per metric.", "Experiment Results view", "close"],
+  ["Experiment", "A blind comparison with random assignment between arms.", "Amplitude Experiment", "close"],
+  ["Exposure", "A user was assigned to an arm and the SDK logged it.", "Assignment", "close"],
+  ["Participation", "A user fired the metric event after being exposed. Only participants count toward the metric.", "No direct twin; closest is users with the metric event post-exposure", "none"],
+  ["Lift", "How much better treatment did than control.", "Lift", "close"],
+  ["Confidence interval", "The honest range the true effect likely sits in.", "Confidence interval", "close"],
+  ["p-value", "The odds noise alone would produce a gap this big.", "p-value", "close"],
+  ["Primary / secondary / guardrail", "The metric you're moving, the ones that support it, and the ones you refuse to break.", "The same metric tiers", "close"],
+  ["Bake window", "Recent data is still being processed, so the trailing edge looks flat. Read baked data only.", "Same concept, a data-processing delay", "close"],
+  ["Sample ratio mismatch", "The traffic split drifted from what you configured, which points to a systematic bug.", "SRM warning; Statsig adds an SRM Debugger", "close"],
+  ["CUPED", "Variance reduction that uses pre-experiment behavior to tighten intervals.", "Variance reduction, less visibly badged", "partial"],
+  ["Sequential testing", "Statistics that stay valid even when you check the results repeatedly.", "Similar always-valid approaches", "partial"],
+  ["Impact tab", "A projection of what the effect would total at 100% rollout. An extrapolation, not a receipt.", "Closest is launch-impact estimates", "partial"],
+  ["Infinite relative delta", "A ratio metric whose denominator interval crosses zero, so the ratio blows up. A display edge case.", "No named equivalent; same math issue exists", "none"],
+  ["Layers", "Separate lanes that keep concurrent experiments from colliding.", "Shared layers / mutual exclusion", "close"],
+  ["Holdout", "A group kept on the old experience to measure total program impact.", "Holdout cohorts", "close"],
+  ["Stable ID", "A device-level identifier for users who aren't logged in.", "Device ID", "close"],
+  ["User ID", "The identifier for a logged-in user.", "User ID", "close"],
+  ["Overrides", "Force specific users in or out, bypassing the targeting rules.", "User overrides", "close"],
+  ["Targeting rules", "The conditions that decide who is eligible: country, platform, segment.", "Cohorts plus audience targeting", "close"],
+  ["Warehouse Native", "Statsig runs the metric math inside your own data warehouse.", "Warehouse mode", "close"],
+  ["Autotune / bandits", "Traffic shifts automatically toward the winning variant.", "No direct equivalent", "none"],
+  ["Differential impact", "Auto-detection of an effect that helped one segment and hurt another.", "Manual heterogeneous-effect analysis", "partial"]
+];
+const tbody = document.getElementById('tbody');
+function render(f) {
+  const filtered = TERMS.filter(t => !f || t.join(' ').toLowerCase().includes(f));
+  if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="4" class="empty">No terms match that.</td></tr>'; return; }
+  tbody.innerHTML = filtered.map(t =>
+    '<tr><td class="term">' + t[0] + '</td><td>' + t[1] + '</td><td>' + t[2] +
+    '</td><td><span class="mq ' + t[3] + '">' + (t[3] === 'close' ? 'close' : t[3] === 'partial' ? 'partial' : 'none') + '</span></td></tr>'
+  ).join('');
+}
+render('');
+document.getElementById('search').addEventListener('input', e => render(e.target.value.toLowerCase()));
+</script>
+</body>
+</html>
