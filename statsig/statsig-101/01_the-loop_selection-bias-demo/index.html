@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why a gate rollout can't prove causation</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif;
+    background: #fff;
+    color: #000;
+    padding: 22px 20px;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage {
+    border: 1.5px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+  }
+  .cap { font-size: 13px; color: #555; margin-bottom: 12px; }
+  .legend { display: flex; gap: 18px; font-size: 13px; color: #333; margin-bottom: 14px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .dot.returning { background: #1E61F0; }
+  .dot.new { background: #fff; border: 1.5px solid #1E61F0; }
+  .btnrow { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  button {
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 9px 16px;
+    border-radius: 8px;
+    border: 1.5px solid #1E61F0;
+    background: #1E61F0;
+    color: #fff;
+    cursor: pointer;
+  }
+  button.alt { background: #fff; color: #1E61F0; }
+  button:hover { opacity: 0.85; }
+  .groups { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .grp { border: 1.5px solid #e0e0e0; border-radius: 8px; padding: 12px; min-height: 96px; }
+  .grp h5 { font-size: 13px; font-weight: 600; color: #333; margin-bottom: 8px; }
+  .crowd { display: flex; flex-wrap: wrap; gap: 6px; }
+  .verdict { font-size: 14px; font-weight: 500; padding: 10px 12px; border-radius: 8px; background: #f4f7fe; color: #0d3a9e; min-height: 20px; }
+  .callout {
+    border-left: 3px solid #1E61F0;
+    background: #f8f9fb;
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 16px;
+    border-radius: 0;
+  }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">You turn on a feature behind a gate, watch its numbers for a week, and they look great. Are they great because the feature works, or because you already showed it to the people most likely to like anything you ship?</p>
+
+  <div class="stage">
+    <div class="cap">12 users, split into two groups two different ways. Same people, different method.</div>
+    <div class="legend">
+      <span><span class="dot returning"></span>Already active before this feature existed</span>
+      <span><span class="dot new"></span>Not especially active before this feature existed</span>
+    </div>
+    <div class="btnrow">
+      <button onclick="runSplit('targeted')">Split by who's already engaged</button>
+      <button class="alt" onclick="runSplit('random')">Split by coin flip</button>
+    </div>
+    <div class="groups">
+      <div class="grp"><h5 id="labelA">Group A</h5><div class="crowd" id="crowdA"></div></div>
+      <div class="grp"><h5 id="labelB">Group B</h5><div class="crowd" id="crowdB"></div></div>
+    </div>
+    <div class="verdict" id="verdict">Pick a method. Watch who lands where.</div>
+  </div>
+
+  <div class="callout">Let's say I want to know if a new onboarding flow actually helps. If I only turn it on for people who already come back every day, of course it looks like a win, they were already coming back. A coin flip is what makes the two groups look the same before either one ever sees the feature.</div>
+
+  <p class="close">A gate rollout can tell you the feature didn't break anything for the users you targeted. Only a group built by random assignment can tell you the feature caused the lift you're seeing.</p>
+</div>
+
+<script>
+const USERS = [1,1,1,1,1,1,0,0,0,0,0,0]; // 1 = already-active, 0 = not especially active
+
+function renderCrowd(id, arr) {
+  document.getElementById(id).innerHTML = arr.map(v =>
+    `<span class="dot ${v ? 'returning' : 'new'}"></span>`
+  ).join('');
+}
+
+function shuffledCopy(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function runSplit(mode) {
+  let groupA, groupB;
+  if (mode === 'targeted') {
+    groupA = USERS.filter(v => v === 1);
+    groupB = USERS.filter(v => v === 0);
+    document.getElementById('labelA').textContent = 'Group A · shown the feature';
+    document.getElementById('labelB').textContent = 'Group B · not shown the feature';
+    renderCrowd('crowdA', groupA);
+    renderCrowd('crowdB', groupB);
+    document.getElementById('verdict').innerHTML =
+      'Group A is already-active users, before the feature ever shipped. Any gap you measure now could just be that difference showing up again.';
+  } else {
+    const shuffled = shuffledCopy(USERS);
+    groupA = shuffled.slice(0, 6);
+    groupB = shuffled.slice(6, 12);
+    document.getElementById('labelA').textContent = 'Group A · shown the feature';
+    document.getElementById('labelB').textContent = 'Group B · not shown the feature';
+    renderCrowd('crowdA', groupA);
+    renderCrowd('crowdB', groupB);
+    const aActive = groupA.filter(v => v === 1).length;
+    const bActive = groupB.filter(v => v === 1).length;
+    document.getElementById('verdict').innerHTML =
+      `Both groups land close to an even mix (${aActive} vs ${bActive} already-active users). Run it again, it stays close every time. That's what makes the comparison fair.`;
+  }
+}
+</script>
+</body>
+</html>
