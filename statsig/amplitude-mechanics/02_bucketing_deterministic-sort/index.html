@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why the same user always gets the same variant</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .btns { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  button { font-family: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: 1.5px solid #1E61F0; background: #1E61F0; color: #fff; cursor: pointer; }
+  button.ghost { background: #fff; color: #1E61F0; }
+  button:hover { opacity: 0.85; }
+  .rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+  .row { display: grid; grid-template-columns: 130px 1fr 90px; align-items: center; gap: 10px; font-size: 13px; }
+  .who { font-weight: 500; }
+  .calc { font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: #666; }
+  .variant { text-align: center; padding: 5px 8px; border-radius: 6px; font-weight: 600; font-size: 12px; opacity: 0; transition: opacity 0.3s; }
+  .variant.control { background: #eef0f4; color: #555; }
+  .variant.treatment { background: #f4f7fe; color: #0d3a9e; }
+  .variant.show { opacity: 1; }
+  .read { font-size: 14px; font-weight: 500; padding: 10px 12px; border-radius: 8px; background: #f4f7fe; color: #0d3a9e; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">Nobody stores which variant each of two million shoppers got. There's no lookup table. The shopper's ID and the flag's salt go through a hash that lands on a fixed number, and that number decides the variant the same way every time, on any device.</p>
+
+  <div class="stage">
+    <div class="btns">
+      <button onclick="sort()">Sort 3 shoppers</button>
+      <button class="ghost" onclick="sort()">Same shoppers again</button>
+    </div>
+    <div class="rows" id="rows"></div>
+    <div class="read" id="read">Sort them once, then again. The IDs are the same, so the results are too.</div>
+  </div>
+
+  <div class="callout">It's a sorting hat that never changes its mind. It reads the name, does its secret math, and assigns a house. Same name, same house, every time, on the phone, the laptop, or after a reinstall. There's no notebook of past decisions, the math itself is the memory.</div>
+
+  <p class="close">At AmpliStore a shopper opens the shade-finder test on her phone at lunch, her laptop at night, and after reinstalling next week. The hash of her ID plus this flag's salt always lands on 37, so she always gets treatment. One gotcha: an anonymous shopper bucketed by device can jump variants once she logs in and the identities merge, and for B2B you bucket by company ID so everyone in an org sees the same thing.</p>
+</div>
+
+<script>
+const shoppers = [
+  { name: 'shopper_4471', ticket: 37 },
+  { name: 'shopper_2093', ticket: 81 },
+  { name: 'shopper_6624', ticket: 12 }
+];
+const rows = document.getElementById('rows');
+rows.innerHTML = shoppers.map((s, i) =>
+  `<div class="row">
+    <span class="who">${s.name}</span>
+    <span class="calc">hash(id + salt) → ${s.ticket}</span>
+    <span class="variant ${s.ticket < 50 ? 'treatment' : 'control'}" id="v${i}">${s.ticket < 50 ? 'Treatment' : 'Control'}</span>
+  </div>`
+).join('');
+function sort() {
+  shoppers.forEach((_, i) => document.getElementById('v' + i).classList.remove('show'));
+  let i = 0;
+  const timer = setInterval(() => {
+    if (i >= shoppers.length) {
+      clearInterval(timer);
+      document.getElementById('read').textContent =
+        'Same three IDs, same three tickets, same three variants. Re-running never changes the answer, the formula recomputes it identically.';
+      return;
+    }
+    document.getElementById('v' + i).classList.add('show');
+    i++;
+  }, 400);
+}
+</script>
+</body>
+</html>
