@@ -28,11 +28,11 @@
   <div class="stage">
     <canvas id="cv" width="680" height="190"></canvas>
     <div class="prob">Probability the variant beats control: <b id="pbeat">50%</b></div>
-    <button onclick="feed()">Feed in data</button>
+    <button id="feedbtn" onclick="feed()">Feed in data</button>
     <div class="read" id="read">Starting belief: a vague guess centered on zero lift. Each batch of data sharpens it.</div>
   </div>
 
-  <div class="callout">Guess how many candies are in the jar. Someone shows you a handful and you adjust. Another handful, you adjust again. You start unsure and end confident. That's the Bayesian move: every batch of data updates the current best guess rather than starting over. And it reports like a weather forecast, "92% chance the new version is better," instead of a p-value.</div>
+  <div class="callout"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#1E61F0;margin-bottom:6px;">Explained in non-technical terms</div>Guess how many candies are in the jar. Someone shows you a handful and you adjust. Another handful, you adjust again. You start unsure and end confident. That's the Bayesian move: every batch of data updates the current best guess rather than starting over. And it reports like a weather forecast, "92% chance the new version is better," instead of a p-value.</div>
 
   <p class="close">The team reports 92% probability the new names lift repeat purchase, with an expected downside of 0.1% if they're wrong, and the decision gets made in one meeting. They also encode a prior from last year's rebrand test, so this one starts smart instead of from scratch. Statsig exposes Bayesian as a selectable type that supports those priors. Amplitude's Bayesian option reports probability to beat control and expected loss, and turns Bonferroni off since it controls false positives its own way.</p>
 </div>
@@ -68,15 +68,25 @@ function draw(mu, sigma) {
   ctx.fillStyle = 'rgba(30,97,240,0.14)'; ctx.fill();
 }
 function feed() {
-  if (stage < stages.length - 1) stage++;
+  if (stage >= stages.length - 1) { start(); return; }
+  stage++;
   const [mu, sigma, pbeat] = stages[stage];
   draw(mu, sigma);
   document.getElementById('pbeat').textContent = pbeat + '%';
-  document.getElementById('read').textContent = stage >= stages.length - 1
+  const atEnd = stage >= stages.length - 1;
+  document.getElementById('read').textContent = atEnd
     ? 'Enough data in: the belief is a tight curve sitting well to the positive side. 92% probability the variant wins, stated plainly.'
     : 'More data in: the curve is tightening and shifting positive, and the probability of beating control climbs.';
+  document.getElementById('feedbtn').textContent = atEnd ? 'Start again' : 'Feed in data';
 }
-draw(stages[0][0], stages[0][1]);
+function start() {
+  stage = 0;
+  draw(stages[0][0], stages[0][1]);
+  document.getElementById('pbeat').textContent = stages[0][2] + '%';
+  document.getElementById('read').textContent = 'Starting belief: a vague guess centered on zero lift. Each batch of data sharpens it.';
+  document.getElementById('feedbtn').textContent = 'Feed in data';
+}
+start();
 </script>
 </body>
 </html>
