@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Three things to check before you read a live scorecard</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 18px; }
+  .card { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 14px 18px; margin-bottom: 10px; cursor: pointer; }
+  .card h4 { font-size: 15px; font-weight: 600; color: #000; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+  .card h4 .arrow { font-size: 13px; color: #1E61F0; transition: transform 0.2s; }
+  .card.open h4 .arrow { transform: rotate(90deg); }
+  .card p.sub { font-size: 13px; color: #666; }
+  .card .detail { font-size: 14px; line-height: 1.6; color: #222; margin-top: 10px; display: none; }
+  .card.open .detail { display: block; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">The scorecard updates every day. Not every number on it is ready to be read the same way. Tapping into each one below shows the check to run first.</p>
+
+  <div class="card" onclick="this.classList.toggle('open')">
+    <h4>Participation isn't the same as assignment <span class="arrow">&rsaquo;</span></h4>
+    <p class="sub">Fewer people in a metric than you assigned to the experiment</p>
+    <div class="detail">Assignment counts everyone the experiment touched. Participation counts only the people who actually did the thing the metric measures. If half your assigned users never reached the checkout page, the checkout metric was only ever going to have half the group in it, no bug required.</div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('open')">
+    <h4>Yesterday's number is still cooking <span class="arrow">&rsaquo;</span></h4>
+    <p class="sub">The last day or two on the chart looks worse than the rest</p>
+    <div class="detail">Conversions that happen a few days after exposure haven't all landed yet for anyone exposed in the last day or two. That trailing dip isn't the trend, it's incomplete data waiting on its attribution window to close. Read the bake window in the metric's setup before reacting to a recent dip.</div>
+  </div>
+
+  <div class="card" onclick="this.classList.toggle('open')">
+    <h4>A confidence interval touching zero isn't a result yet <span class="arrow">&rsaquo;</span></h4>
+    <p class="sub">The point estimate says +3%, but is that real</p>
+    <div class="detail">The point estimate is one number, the confidence interval is the honest range around it. If that range still spans zero, a true effect of nothing at all is still consistent with what you've measured. The point estimate moving doesn't mean the interval has closed around it.</div>
+  </div>
+
+  <p class="close">All three come back to the same habit: check what a number is actually built from before deciding what it means.</p>
+</div>
+</body>
+</html>
