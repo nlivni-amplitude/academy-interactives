@@ -34,7 +34,7 @@
     <div class="read" id="read">Pick a scenario. The line is the accumulated evidence, the two edges are the decision boundaries.</div>
   </div>
 
-  <div class="callout">This is what SPRT does: it tracks the ratio of evidence for "there's an effect" against "there isn't," and it stops the moment that ratio crosses a boundary in either direction. Obvious winners cross fast, obvious duds cross the other way fast, and genuinely close calls keep collecting data because the evidence hasn't tipped yet.</div>
+  <div class="callout" style="border-left-color:#BA7517;background:#fdf7ee;"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#854f0b;margin-bottom:6px;">Note</div>This is what SPRT does: it tracks the ratio of evidence for "there's an effect" against "there isn't," and it stops the moment that ratio crosses a boundary in either direction. Obvious winners cross fast, obvious duds cross the other way fast, and genuinely close calls keep collecting data because the evidence hasn't tipped yet.</div>
 
   <p class="close">At AmpliStore an "only 3 left" urgency badge has a big, immediate effect, so under SPRT the evidence smashes through the boundary in 5 days on a test scoped for 3 weeks. That's 16 days of conversion banked and the test slot freed. Statsig exposes SPRT as a selectable analytics type. Amplitude doesn't call it out as a mode because its default sequential engine already is mSPRT, the same family, so the answer to "does Amplitude have SPRT" is yes, it's the engine underneath.</p>
 </div>
