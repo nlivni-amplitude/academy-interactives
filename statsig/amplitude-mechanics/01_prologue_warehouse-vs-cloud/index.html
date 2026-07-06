@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Where the experiment math actually runs</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .btns { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  button { font-family: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: 1.5px solid #1E61F0; background: #1E61F0; color: #fff; cursor: pointer; }
+  button.ghost { background: #fff; color: #1E61F0; }
+  button:hover { opacity: 0.85; }
+  .diagram { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; }
+  .node { flex: 1; border: 1.5px solid #e0e0e0; border-radius: 8px; padding: 12px 8px; text-align: center; font-size: 12.5px; transition: all 0.3s; }
+  .node .icon { font-size: 20px; display: block; margin-bottom: 4px; }
+  .node.active { border-color: #1E61F0; background: #f4f7fe; }
+  .node.crunch.active { border-color: #1D9E75; background: #edf8f3; }
+  .arrow { color: #bbb; font-size: 18px; flex-shrink: 0; }
+  .read { font-size: 14px; font-weight: 500; padding: 10px 12px; border-radius: 8px; background: #f4f7fe; color: #0d3a9e; min-height: 20px; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">Both approaches bucket users and read out significance the same way. The one thing that changes is where the metric math runs: on the vendor's copy of your data, or inside your own warehouse next to the tables finance already trusts.</p>
+
+  <div class="stage">
+    <div class="btns">
+      <button onclick="show('cloud')">Cloud flow</button>
+      <button class="ghost" onclick="show('whn')">Warehouse-native flow</button>
+    </div>
+    <div class="diagram" id="diagram">
+      <div class="node" id="n-app"><span class="icon">📱</span>App assigns variant</div>
+      <span class="arrow">→</span>
+      <div class="node" id="n-events"><span class="icon">📤</span>Events stream out</div>
+      <span class="arrow">→</span>
+      <div class="node crunch" id="n-crunch"><span class="icon">⚙️</span><span id="crunch-lbl">Stats engine</span></div>
+      <span class="arrow">→</span>
+      <div class="node" id="n-result"><span class="icon">📊</span>Results</div>
+    </div>
+    <div class="read" id="read">Pick a mode. Watch where the crunching happens and what leaves the building.</div>
+  </div>
+
+  <div class="callout">Cloud is sending your groceries to the vendor's kitchen: they keep a copy, cook the analysis, and plate the result. Warehouse-native is the chef coming to your kitchen instead. The recipes, SQL queries, travel to your warehouse, the cooking happens next to your own fridge, and only the finished tasting notes leave. Your groceries never go anywhere, and your fridge holds ingredients the vendor's kitchen never had: refunds, margins, offline orders.</div>
+
+  <p class="close">At AmpliStore the CFO won't trust revenue from SDK purchase events, because real net revenue lives in Snowflake after refunds and fees, and legal won't let raw orders leave. Warehouse-native squares it: the SDK still assigns variants, but the success metric is net revenue after returns, computed inside Snowflake from the same tables the board sees. The trade is that results refresh on a schedule instead of in real time.</p>
+</div>
+
+<script>
+function reset() {
+  ['n-app','n-events','n-crunch','n-result'].forEach(id => document.getElementById(id).classList.remove('active'));
+}
+function show(mode) {
+  reset();
+  document.getElementById('n-app').classList.add('active');
+  if (mode === 'cloud') {
+    document.getElementById('n-events').classList.add('active');
+    document.getElementById('n-crunch').classList.add('active');
+    document.getElementById('n-result').classList.add('active');
+    document.getElementById('crunch-lbl').textContent = "Vendor's copy + engine";
+    document.getElementById('read').textContent =
+      'Cloud: events stream to the vendor, which stores its own copy and runs the stats there. Fast to start and near real-time, but the metrics are limited to what the SDK tracked.';
+  } else {
+    document.getElementById('n-crunch').classList.add('active');
+    document.getElementById('n-result').classList.add('active');
+    document.getElementById('crunch-lbl').textContent = 'Runs inside your warehouse';
+    document.getElementById('read').textContent =
+      'Warehouse-native: assignment still happens in the app, but the engine ships SQL into your warehouse and computes beside your tables. Only a small results summary leaves. Metrics can use finance revenue, returns, even offline data.';
+  }
+}
+</script>
+</body>
+</html>
