@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why a rule at 100% shows no lift</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .controls { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; font-size: 14px; }
+  .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .panel { border: 1.5px solid #e0e0e0; border-radius: 8px; padding: 14px; }
+  .panel h5 { font-size: 13px; font-weight: 600; margin-bottom: 10px; color: #333; }
+  .nolift { font-size: 13px; color: #777; line-height: 1.6; }
+  .metric { margin-bottom: 10px; }
+  .metric .name { font-size: 12px; color: #666; margin-bottom: 3px; }
+  .metric .val { font-size: 20px; font-weight: 600; color: #1E61F0; }
+  .bar { height: 6px; background: #eceef2; border-radius: 3px; margin-top: 6px; overflow: hidden; }
+  .bar span { display: block; height: 100%; background: #1E61F0; transition: width 0.3s; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">Your gate has two rules: internal users at 100%, everyone else at 50%. It's been live two weeks and you open the metrics expecting two lift numbers. You get one. Nothing's broken.</p>
+
+  <div class="stage">
+    <div class="controls">
+      <label>Rule 2 rollout <input type="range" id="pct" min="0" max="100" step="10" value="50" oninput="update(+this.value)"> <b id="lab">50%</b></label>
+    </div>
+    <div class="panels">
+      <div class="panel">
+        <h5>Rule 1 · Internal users · 100%</h5>
+        <div class="nolift">No lift shown. Everyone in this rule passes, so there's no fail group to compare them against. Not broken, there's just nothing to measure a difference against.</div>
+      </div>
+      <div class="panel">
+        <h5>Rule 2 · Everyone else · <span id="lab2">50%</span></h5>
+        <div id="body"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">You can't tell whether a vitamin works if every kid takes it. You need some kids who didn't, to compare against. A rule at 100% is every kid taking the vitamin, so lift has nothing to sit next to. Only a rule that splits its users, some passing and some failing, produces a comparison.</div>
+
+  <p class="close">Drag Rule 2 to 0% or 100% and its panel goes quiet too, for the same reason. This is also why an empty panel at 50% isn't a bug: lift only appears once passing users have actually fired the metric event. No purchases yet means no purchase lift yet, not a broken gate.</p>
+</div>
+
+<script>
+function update(pct) {
+  document.getElementById('lab').textContent = pct + '%';
+  document.getElementById('lab2').textContent = pct + '%';
+  const body = document.getElementById('body');
+  if (pct === 0 || pct === 100) {
+    body.innerHTML = '<div class="nolift">No lift shown. At ' + pct + '% everyone ' +
+      (pct === 100 ? 'passes' : 'fails') + ', so this rule has no comparison group either.</div>';
+    return;
+  }
+  const lift = (3.5 + (pct - 50) * 0.02).toFixed(1);
+  const width = Math.min(100, 40 + pct * 0.4);
+  body.innerHTML =
+    '<div class="metric"><div class="name">Purchase rate lift</div><div class="val">+' + lift + '%</div>' +
+    '<div class="bar"><span style="width:' + width + '%"></span></div></div>' +
+    '<div class="nolift">Pass vs. fail groups both exist here, so the comparison is real.</div>';
+}
+update(50);
+</script>
+</body>
+</html>
