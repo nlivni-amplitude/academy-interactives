@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The two questions behind client, server, local, and remote</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .matrix { display: grid; grid-template-columns: 90px 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .hd { font-size: 12px; font-weight: 600; color: #666; display: flex; align-items: center; justify-content: center; text-align: center; padding: 6px; }
+  .rowhd { font-size: 12px; font-weight: 600; color: #666; display: flex; align-items: center; padding: 6px; }
+  .quad { border: 1.5px solid #e0e0e0; border-radius: 8px; padding: 12px; cursor: pointer; transition: all 0.2s; min-height: 74px; }
+  .quad:hover { border-color: #1E61F0; }
+  .quad.active { border-color: #1E61F0; background: #f4f7fe; }
+  .quad .name { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+  .quad .ex { font-size: 12px; color: #666; line-height: 1.4; }
+  .detail { font-size: 14px; line-height: 1.6; padding: 12px 14px; border-radius: 8px; background: #f4f7fe; color: #0d3a9e; min-height: 44px; }
+  .detail b { font-weight: 600; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">People mash two separate questions into one. Where your code runs is one axis. Who decides the variant is a different axis. They mix freely into four real combinations, and confusing them is like mixing up where the chef stands with who wrote the recipe.</p>
+
+  <div class="stage">
+    <div class="matrix">
+      <div class="hd"></div>
+      <div class="hd">Remote<br><span style="font-weight:400">HQ decides</span></div>
+      <div class="hd">Local<br><span style="font-weight:400">your copy decides</span></div>
+
+      <div class="rowhd">Client<br>(browser, app)</div>
+      <div class="quad" onclick="pick(this,0)"><div class="name">Client + Remote</div><div class="ex">Homepage hero test</div></div>
+      <div class="quad" onclick="pick(this,1)"><div class="name">Client + Local</div><div class="ex">Instant UI flag, no fetch</div></div>
+
+      <div class="rowhd">Server<br>(backend)</div>
+      <div class="quad" onclick="pick(this,2)"><div class="name">Server + Remote</div><div class="ex">Enriched backend decision</div></div>
+      <div class="quad" onclick="pick(this,3)"><div class="name">Server + Local</div><div class="ex">Search at 30k requests/sec</div></div>
+    </div>
+    <div class="detail" id="detail">Tap any quadrant. Each one has a job it's best at and a trap to know.</div>
+  </div>
+
+  <div class="callout">Two questions, kept apart. What you're testing picks client or server: if a shopper could screenshot the difference it's client, if it's invisible logic like pricing or ranking it's server. Brains or speed picks remote or local: cohorts, geo, and sticky bucketing need remote, while sub-millisecond and high request rates need local. What you test picks client or server, brains or speed picks remote or local.</div>
+</div>
+
+<script>
+const details = [
+  '<b>Client + Remote.</b> The default for a reason: a UI test with rich targeting and automatic exposure tracking. HQ enriches the decision, the browser renders it. Best when you want cohorts and geo on a visible change.',
+  '<b>Client + Local.</b> Instant evaluation with no fetch, the niche pick. The trap: targeting data ships to the client, so if you target someone by email, every client can read that email in the flag config.',
+  '<b>Server + Remote.</b> Backend logic that still needs enrichment, cohorts, or historical properties. The decision is invisible to the user and computed with everything HQ knows.',
+  '<b>Server + Local.</b> Sub-millisecond at high request rates, even at the edge. No automatic exposure events, so you use the assignment event as your exposure event in analysis.'
+];
+function pick(el, i) {
+  document.querySelectorAll('.quad').forEach(q => q.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('detail').innerHTML = details[i];
+}
+</script>
+</body>
+</html>
