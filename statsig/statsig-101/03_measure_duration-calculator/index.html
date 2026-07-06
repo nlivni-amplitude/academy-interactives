@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How long an experiment needs to run</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .calc { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .ctrl { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; font-size: 14px; }
+  .ctrl label { width: 168px; color: #555; }
+  .ctrl input { flex: 1; }
+  .ctrl .val { width: 70px; text-align: right; font-weight: 600; }
+  .eq { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 16px 0 6px; flex-wrap: wrap; font-size: 13px; color: #666; }
+  .eq .box { text-align: center; }
+  .eq .num { font-size: 18px; font-weight: 600; color: #000; }
+  .eq .op { font-size: 18px; color: #bbb; }
+  .result { text-align: center; margin-top: 10px; }
+  .result .days { font-size: 34px; font-weight: 600; transition: color 0.3s; }
+  .result .verdict { font-size: 14px; font-weight: 500; margin-top: 2px; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">Before launching, you need a planned duration, because deciding when to stop based on when the numbers look good is the peeking trap. The length comes from one relationship: how many users you need, divided by how many you get a day.</p>
+
+  <div class="calc">
+    <div class="ctrl">
+      <label>Effect you want to catch</label>
+      <input type="range" id="mde" min="1" max="10" step="1" value="3" oninput="calc()">
+      <span class="val" id="mdev">3%</span>
+    </div>
+    <div class="ctrl">
+      <label>Daily traffic on the surface</label>
+      <input type="range" id="traffic" min="200" max="10000" step="200" value="2000" oninput="calc()">
+      <span class="val" id="trafv">2k</span>
+    </div>
+    <div class="eq">
+      <div class="box"><div class="num" id="sample">—</div>users needed per arm</div>
+      <span class="op">&divide;</span>
+      <div class="box"><div class="num" id="perday">—</div>per arm per day</div>
+      <span class="op">=</span>
+      <div class="box"><div class="num" id="daysinline">—</div>days</div>
+    </div>
+    <div class="result">
+      <div class="days" id="days">—</div>
+      <div class="verdict" id="verdict"></div>
+    </div>
+  </div>
+
+  <div class="callout"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#1E61F0;margin-bottom:6px;">Explained in non-technical terms</div>It's how long you'd stand at a crosswalk counting cars to be sure one color is more common. A big, obvious gap you'd spot in a few minutes. A tiny one takes all afternoon, and on a quiet road it might take days. Smaller effects and thinner traffic both mean more waiting.</div>
+
+  <p class="close">The smaller the effect you want to catch, the more users you need to tell it apart from noise, and that number climbs sharply as the effect shrinks. Divide it by your daily traffic and you get days. Statsig's experiment setup runs this power analysis for you, but the shape is always the same: pick the effect size and the traffic, and the duration falls out. If it comes back longer than you can wait, you either chase a bigger effect, accept lower confidence, or run it on a higher-traffic surface.</p>
+</div>
+
+<script>
+function calc() {
+  const mde = +document.getElementById('mde').value; // 1..10 percent
+  const traffic = +document.getElementById('traffic').value; // total daily
+  document.getElementById('mdev').textContent = mde + '%';
+  document.getElementById('trafv').textContent = traffic >= 1000 ? (traffic / 1000) + 'k' : traffic;
+  // sample size per arm scales ~ 1/mde^2 (standard power-analysis shape)
+  const sample = Math.round(16000 / (mde * mde) / 100) * 100;
+  const perArmPerDay = Math.round(traffic / 2);
+  const days = Math.max(1, Math.ceil(sample / perArmPerDay));
+  document.getElementById('sample').textContent = sample.toLocaleString();
+  document.getElementById('perday').textContent = perArmPerDay.toLocaleString();
+  document.getElementById('daysinline').textContent = days;
+  const el = document.getElementById('days'), v = document.getElementById('verdict');
+  el.textContent = days + (days === 1 ? ' day' : ' days');
+  if (days <= 21) { el.style.color = '#0f6e56'; v.style.color = '#0f6e56'; v.textContent = 'Runnable inside a normal cycle.'; }
+  else if (days <= 90) { el.style.color = '#854f0b'; v.style.color = '#854f0b'; v.textContent = 'Long. Worth a bigger effect target or a higher-traffic surface.'; }
+  else { el.style.color = '#a3352a'; v.style.color = '#a3352a'; v.textContent = 'Too long to be practical. Rethink the effect size or the surface.'; }
+}
+calc();
+</script>
+</body>
+</html>
