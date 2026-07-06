@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What archiving a live gate actually does</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .grid { display: grid; grid-template-columns: 200px 1fr; gap: 18px; align-items: start; }
+  .phone { border: 2px solid #d8dce4; border-radius: 14px; padding: 10px; background: #fff; }
+  .appbar { font-size: 12px; font-weight: 600; color: #333; padding: 6px 8px; background: #f4f7fe; border-radius: 6px; margin-bottom: 8px; }
+  .item { height: 22px; background: #f0f1f4; border-radius: 5px; margin-bottom: 7px; }
+  .feature { padding: 10px; background: #1E61F0; color: #fff; border-radius: 6px; font-size: 12.5px; font-weight: 500; text-align: center; margin-bottom: 7px; transition: all 0.3s; }
+  .feature.gone { background: #f0f1f4; color: transparent; }
+  .payload { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; background: #f7f8fa; border: 1px solid #e6e8ec; border-radius: 8px; padding: 12px; white-space: pre; overflow-x: auto; color: #333; margin-bottom: 10px; min-height: 128px; }
+  .stepmsg { font-size: 14px; line-height: 1.55; color: #222; }
+  .steprow { display: flex; gap: 10px; margin-top: 14px; }
+  button { font-family: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: 1.5px solid #1E61F0; background: #1E61F0; color: #fff; cursor: pointer; }
+  button.ghost { background: #fff; color: #1E61F0; }
+  button:hover { opacity: 0.85; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">A gate's been sitting at 100% for three months, so you archive it to clean up. The feature vanishes for everyone that afternoon. Stepping through what archiving actually changes shows why.</p>
+
+  <div class="stage">
+    <div class="grid">
+      <div class="phone">
+        <div class="appbar">AmpliStore</div>
+        <div class="item"></div><div class="item"></div>
+        <div class="feature" id="feat">1-Click Checkout</div>
+        <div class="item"></div>
+      </div>
+      <div>
+        <div class="payload" id="payload">// SDK config the app checks
+{
+  "gates": {
+    "one_click_checkout": {
+      "state": "Launched",
+      "rollout": 100
+    }
+  }
+}</div>
+        <div class="stepmsg" id="stepmsg">Step 1 of 4. The gate is Launched at 100%, so every shopper gets 1-click checkout.</div>
+      </div>
+    </div>
+    <div class="steprow">
+      <button id="stepbtn" onclick="next()">Next step</button>
+      <button class="ghost" onclick="reset()">Reset</button>
+    </div>
+  </div>
+
+  <div class="callout">The gate is a sticky note on the fridge that says "dessert is allowed," and the app checks the fridge every morning. Archiving throws the note away, and code that finds no note assumes the answer is no. If the <code>checkGate()</code> call is still in the app when the note disappears, dessert vanishes for everyone at once.</div>
+
+  <p class="close">The order that avoids it: remove the check from the code, deploy, then archive. Two related safe-ops habits sit alongside this one. Saving an override touches production users, so it needs launch permission, not just edit access. And when you want proof the feature caused a metric to move rather than a signal that it might have, graduating the gate to an experiment keeps the targeting and adds the randomization that makes the result causal.</p>
+</div>
+
+<script>
+const steps = [
+  {
+    payload: `// SDK config the app checks
+{
+  "gates": {
+    "one_click_checkout": {
+      "state": "Launched",
+      "rollout": 100
+    }
+  }
+}`,
+    msg: 'Step 1 of 4. The gate is Launched at 100%, so every shopper gets 1-click checkout.',
+    gone: false
+  },
+  {
+    payload: `// Someone opens the gate to archive it
+{
+  "gates": {
+    "one_click_checkout": {
+      "state": "Launched",
+      "rollout": 100,
+      "archiving": "pending..."
+    }
+  }
+}`,
+    msg: 'Step 2 of 4. "It\'s been at 100% for months, safe to clean up." The archive button gets clicked.',
+    gone: false
+  },
+  {
+    payload: `// Next config refresh: the gate is gone
+{
+  "gates": {}
+}`,
+    msg: 'Step 3 of 4. Archiving removes the gate from the config the app downloads. It\'s simply not there anymore.',
+    gone: false
+  },
+  {
+    payload: `// The app still runs this line
+if (checkGate("one_click_checkout")) {
+  showOneClickCheckout();
+}
+// gate missing -> checkGate() returns false`,
+    msg: 'Step 4 of 4. The code still asks for a gate that no longer exists, gets false back, and hides the feature. For every shopper.',
+    gone: true
+  }
+];
+
+let i = 0;
+function render() {
+  const s = steps[i];
+  document.getElementById('payload').textContent = s.payload;
+  document.getElementById('stepmsg').textContent = s.msg;
+  document.getElementById('feat').classList.toggle('gone', s.gone);
+  document.getElementById('stepbtn').textContent = i >= steps.length - 1 ? 'End of walkthrough' : 'Next step';
+  document.getElementById('stepbtn').disabled = i >= steps.length - 1;
+}
+function next() { if (i < steps.length - 1) { i++; render(); } }
+function reset() { i = 0; render(); document.getElementById('stepbtn').disabled = false; }
+render();
+</script>
+</body>
+</html>
