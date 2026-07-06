@@ -42,7 +42,7 @@
     <button onclick="run()">Play</button>
   </div>
 
-  <div class="callout">A 46/54 split isn't "close enough" when the chi-squared test says an imbalance this large has under a 0.01% chance of happening randomly. That means something systematic is filtering one arm differently: a crash before exposure logs, bot traffic, conditional logging, truncated logs. More data makes it worse, not better, because you're adding more biased data on top.</div>
+  <div class="callout" style="border-left-color:#BA7517;background:#fdf7ee;"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#854f0b;margin-bottom:6px;">Note</div>A 46/54 split isn't "close enough" when the chi-squared test says an imbalance this large has under a 0.01% chance of happening randomly. That means something systematic is filtering one arm differently: a crash before exposure logs, bot traffic, conditional logging, truncated logs. More data makes it worse, not better, because you're adding more biased data on top.</div>
 
   <p class="close">The diagnostic is the SRM p-value over time. Noisy and bouncing around means it might be a false alarm. Trending toward zero means a real bug, and the fix is to find the cause, then restart the experiment clean. A compromised split can't be read past, no matter how good the scorecard underneath it looks.</p>
 </div>
