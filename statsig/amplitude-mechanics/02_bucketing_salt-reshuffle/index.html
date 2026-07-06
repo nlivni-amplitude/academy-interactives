@@ -39,7 +39,7 @@
     <div class="read" id="read">40 shoppers, sorted by the current salt. Blue is treatment, gray is control.</div>
   </div>
 
-  <div class="callout">Change the salt and the whole school gets re-sorted, everyone could land in a different house. That's great when you want a clean fresh shuffle, and catastrophic if it happens partway through a live test.</div>
+  <div class="callout"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#1E61F0;margin-bottom:6px;">Explained in non-technical terms</div>Change the salt and the whole school gets re-sorted, everyone could land in a different house. That's great when you want a clean fresh shuffle, and catastrophic if it happens partway through a live test.</div>
 
   <p class="close">At AmpliStore two weeks into the checkout test, an engineer edits the salt to clean things up. Thousands of shoppers silently swap variants, people mid-purchase see the other checkout, and the data mixes both experiences into something unreadable. The right use is a deliberate new run after fixing broken instrumentation, with the previous data excluded, which is why the platform gates salt changes behind approvals.</p>
 </div>
