@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Building a hypothesis that holds up</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .builder { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .part { margin-bottom: 12px; }
+  .part label { display: block; font-size: 12px; font-weight: 600; color: #666; margin-bottom: 4px; }
+  .part .tag { font-size: 11px; color: #1E61F0; font-weight: 600; }
+  select { width: 100%; font-family: inherit; font-size: 14px; padding: 8px 10px; border: 1.5px solid #d8dce4; border-radius: 6px; background: #fff; }
+  select.empty { border-color: #e0a020; background: #fdf7ee; }
+  .assembled { margin-top: 14px; padding: 13px 15px; border-radius: 8px; background: #f4f7fe; font-size: 15px; line-height: 1.6; color: #0d3a9e; }
+  .assembled .filled { font-weight: 600; }
+  .assembled .blank { color: #b8860b; font-style: italic; }
+  .warn { margin-top: 10px; font-size: 13px; color: #854f0b; line-height: 1.5; min-height: 18px; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">A hypothesis you write before an experiment is what stops you from rationalizing whatever result you see afterward. A complete one has three parts, and assembling one below shows what happens when a part is missing.</p>
+
+  <div class="builder">
+    <div class="part">
+      <label><span class="tag">Action</span> &mdash; what you're changing</label>
+      <select id="action" onchange="build()">
+        <option value="">choose an action</option>
+        <option>moving the shade-finder quiz above the fold</option>
+        <option>adding a one-click checkout button</option>
+        <option>showing an "only 3 left" badge on product pages</option>
+      </select>
+    </div>
+    <div class="part">
+      <label><span class="tag">Predicted outcome</span> &mdash; the metric, and by how much</label>
+      <select id="outcome" onchange="build()">
+        <option value="">choose a predicted outcome</option>
+        <option>lift checkout conversion by about 3%</option>
+        <option>raise add-to-cart rate by about 5%</option>
+        <option>increase completed purchases by about 2%</option>
+      </select>
+    </div>
+    <div class="part">
+      <label><span class="tag">Rationale</span> &mdash; why you think it will work</label>
+      <select id="rationale" onchange="build()">
+        <option value="">choose a rationale</option>
+        <option>shoppers who find their shade are more confident buying</option>
+        <option>fewer steps to purchase means fewer chances to drop off</option>
+        <option>scarcity nudges undecided shoppers to commit</option>
+      </select>
+    </div>
+    <div class="assembled" id="assembled"></div>
+    <div class="warn" id="warn"></div>
+  </div>
+
+  <div class="callout"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#1E61F0;margin-bottom:6px;">Explained in non-technical terms</div>It's calling your shot before the coin lands. If you say out loud "heads, and here's why" before the flip, you can't quietly claim you meant tails afterward. Writing the action, the number, and the reason down first is how you keep from rewriting the story to match whatever the scorecard shows.</div>
+
+  <p class="close">All three parts are load-bearing. Skip the action and there's nothing to run. Skip the predicted outcome and any result counts as a win, since you never said what you expected. Skip the rationale and you can't tell a real effect from a fluke, because you had no reason it should work. AmpliStore writes all three before launch so the scorecard settles the question instead of becoming a Rorschach test.</p>
+</div>
+
+<script>
+function build() {
+  const a = document.getElementById('action').value;
+  const o = document.getElementById('outcome').value;
+  const r = document.getElementById('rationale').value;
+  [['action', a], ['outcome', o], ['rationale', r]].forEach(([id, v]) => {
+    document.getElementById(id).classList.toggle('empty', !v);
+  });
+  const seg = (v, fallback) => v ? '<span class="filled">' + v + '</span>' : '<span class="blank">' + fallback + '</span>';
+  document.getElementById('assembled').innerHTML =
+    'We believe ' + seg(a, '[an action]') + ' will ' + seg(o, '[some outcome]') + ' because ' + seg(r, '[a rationale]') + '.';
+  const missing = [];
+  if (!a) missing.push('the action');
+  if (!o) missing.push('the predicted outcome');
+  if (!r) missing.push('the rationale');
+  const w = document.getElementById('warn');
+  if (missing.length === 0) {
+    w.textContent = 'Complete. This is testable, and the result can only confirm or contradict it.';
+    w.style.color = '#0f6e56';
+  } else {
+    w.textContent = 'Missing ' + missing.join(', ') + '. Without it, you can rationalize whatever the scorecard shows after the fact.';
+    w.style.color = '#854f0b';
+  }
+}
+build();
+</script>
+</body>
+</html>
