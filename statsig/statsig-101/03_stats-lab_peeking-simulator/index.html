@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why checking every day burns you</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .cap { font-size: 13px; color: #555; margin-bottom: 12px; }
+  button { font-family: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: 1.5px solid #1E61F0; background: #1E61F0; color: #fff; cursor: pointer; margin-bottom: 14px; }
+  button:hover { opacity: 0.85; }
+  svg { display: block; margin-bottom: 8px; }
+  .verdict { font-size: 14px; font-weight: 500; padding: 10px 12px; border-radius: 8px; background: #f4f7fe; color: #0d3a9e; min-height: 20px; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin-bottom: 16px; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">Day 3 shows a gap so you call it and ship. Day 3 shows a gap the other way, and you'd have called that too. Both instincts have the same problem: neither day was when you planned to look.</p>
+
+  <div class="stage">
+    <div class="cap">One 14-day experiment, no real difference between arms, tracked day by day. The line is the measured gap each day, it wanders because it's just noise.</div>
+    <button onclick="runWander()">Track 14 days</button>
+    <svg id="chart" width="640" height="160" viewBox="0 0 640 160"></svg>
+    <div class="verdict" id="verdict">Press run to see how much a "nothing changed" gap moves day to day.</div>
+  </div>
+
+  <div class="callout">The line crosses "looks significant" more than once along the way, in both directions, purely from noise settling differently each day. Stopping the moment it crosses that line, in whichever direction favors the story you want, is what peeking costs you. The fix isn't to stop checking, it's to only make the ship decision on the day you committed to before the experiment started.</div>
+
+  <p class="close">A tool that runs the same math sequentially, correcting for every look instead of just the last one, is built for teams that want to check in without paying this cost. Left unadjusted, checking daily and stopping the first time it looks good is close to guaranteed to eventually look good, whether or not anything is actually different.</p>
+</div>
+
+<script>
+function runWander() {
+  const svg = document.getElementById('chart');
+  svg.innerHTML = '';
+  const days = 14, w = 640, h = 160, padX = 30, padY = 20;
+  const stepX = (w - padX * 2) / (days - 1);
+  const midY = h / 2;
+  const scale = 900;
+
+  let cum = 0;
+  const points = [];
+  for (let d = 0; d < days; d++) {
+    cum += (Math.random() - 0.5) * 0.02;
+    points.push(cum);
+  }
+
+  const zeroLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  zeroLine.setAttribute('x1', padX); zeroLine.setAttribute('x2', w - padX);
+  zeroLine.setAttribute('y1', midY); zeroLine.setAttribute('y2', midY);
+  zeroLine.setAttribute('stroke', '#ccc'); zeroLine.setAttribute('stroke-dasharray', '4,4');
+  svg.appendChild(zeroLine);
+
+  [0.04, -0.04].forEach(thresh => {
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    const y = midY - thresh * scale;
+    line.setAttribute('x1', padX); line.setAttribute('x2', w - padX);
+    line.setAttribute('y1', y); line.setAttribute('y2', y);
+    line.setAttribute('stroke', '#e0a020'); line.setAttribute('stroke-dasharray', '2,3');
+    svg.appendChild(line);
+  });
+
+  let path = '';
+  let crossed = 0;
+  points.forEach((v, i) => {
+    const x = padX + i * stepX;
+    const y = midY - v * scale;
+    path += (i === 0 ? 'M' : 'L') + x + ',' + y + ' ';
+    if (Math.abs(v) >= 0.04) crossed++;
+    const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    dot.setAttribute('cx', x); dot.setAttribute('cy', y); dot.setAttribute('r', 3.5);
+    dot.setAttribute('fill', Math.abs(v) >= 0.04 ? '#1E61F0' : '#9aa4b8');
+    svg.appendChild(dot);
+  });
+  const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  pathEl.setAttribute('d', path.trim());
+  pathEl.setAttribute('fill', 'none');
+  pathEl.setAttribute('stroke', '#1E61F0');
+  pathEl.setAttribute('stroke-width', '1.5');
+  svg.insertBefore(pathEl, svg.firstChild.nextSibling);
+
+  document.getElementById('verdict').textContent = crossed > 0
+    ? `The gap crossed the "looks significant" line on ${crossed} of 14 days, even though nothing real ever changed.`
+    : `This run stayed inside the line all 14 days, run it again and it won't always be this clean.`;
+}
+</script>
+</body>
+</html>
