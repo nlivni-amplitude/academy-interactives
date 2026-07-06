@@ -24,7 +24,7 @@
 </head>
 <body>
 <div class="wrap">
-  <p class="lead">Your experiment shows treatment ahead by 4 percentage points. Before believing the feature did that, it's worth asking how often pure randomness alone produces a gap that size, when nothing actually changed.</p>
+  <p class="lead">Your experiment shows treatment ahead by 4 percentage points. Before believing the feature did that, how often does pure randomness alone produce a gap that size when nothing actually changed?</p>
 
   <div class="stage">
     <div class="cap">100 simulated experiments. Both arms get the identical 20% true conversion rate, no real difference between them. Each square is one simulated run.</div>
@@ -33,9 +33,9 @@
     <div class="verdict" id="verdict">Press run to see how often luck alone clears a 4-point gap.</div>
   </div>
 
-  <div class="callout" style="border-left-color:#BA7517;background:#fdf7ee;"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#854f0b;margin-bottom:6px;">Note</div>A p-value is that fraction. It's not the odds the feature works, it's the odds that noise alone, with zero real effect, would still hand you a gap this big or bigger. A small p-value means that fraction is small, so the gap you saw is unusual enough to take seriously.</div>
+  <div class="callout" style="border-left-color:#BA7517;background:#fdf7ee;"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#854f0b;margin-bottom:6px;">Note</div>A p-value is that fraction: the odds that noise alone, with zero real effect, would still hand you a gap this big or bigger. It gets read as the chance the feature works, which it is not. A small p-value means the fraction is small, so the gap you saw is unusual enough to take seriously.</div>
 
-  <p class="close">Run it again and the count moves a little, that's expected, it's still random. What should stay roughly stable is that a 4-point gap isn't rare enough to ignore, but it isn't so rare that seeing it once proves anything either.</p>
+  <p class="close">Running it again, the count moves a little, that's expected, it's still random. What should stay roughly stable is that a 4-point gap isn't rare enough to ignore, but it isn't so rare that seeing it once proves anything either.</p>
 </div>
 
 <script>
