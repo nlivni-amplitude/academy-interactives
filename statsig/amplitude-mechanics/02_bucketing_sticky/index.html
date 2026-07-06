@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What sticky bucketing protects during a ramp</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .btns { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  button { font-family: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: 1.5px solid #1E61F0; background: #1E61F0; color: #fff; cursor: pointer; }
+  button.ghost { background: #fff; color: #1E61F0; }
+  button:hover { opacity: 0.85; }
+  .phase { font-size: 13px; color: #666; margin-bottom: 8px; }
+  .grid { display: grid; grid-template-columns: repeat(20, 1fr); gap: 4px; margin-bottom: 12px; }
+  .dot { aspect-ratio: 1; border-radius: 3px; transition: background 0.4s; position: relative; }
+  .dot.control { background: #d7dbe3; }
+  .dot.treatment { background: #1E61F0; }
+  .dot.flip { outline: 2px solid #e0554a; outline-offset: 1px; }
+  .read { font-size: 14px; font-weight: 500; padding: 10px 12px; border-radius: 8px; background: #f4f7fe; color: #0d3a9e; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">You ramp a test from a 50/50 split to 20/80. The new split has to come from somewhere, and without protection it comes partly from re-dealing shoppers who already saw a variant. Sticky bucketing decides who that's allowed to happen to.</p>
+
+  <div class="stage">
+    <div class="phase" id="phase">40 shoppers at the starting 50/50 split.</div>
+    <div class="grid" id="grid"></div>
+    <div class="btns">
+      <button onclick="ramp(true)">Ramp to 20/80, sticky on</button>
+      <button class="ghost" onclick="ramp(false)">Same ramp, sticky off</button>
+      <button class="ghost" onclick="reset()">Reset</button>
+    </div>
+    <div class="read" id="read">Ramp it both ways. Red outlines mark shoppers who got re-dealt into a different variant.</div>
+  </div>
+
+  <div class="callout">You keep the toy you started with. Even when the teacher changes who gets which toy, the kids already holding one keep theirs, and only kids arriving after the change follow the new rules. No child bursts into tears because their toy got swapped mid-play.</div>
+
+  <p class="close">At AmpliStore a VIP-pricing test ramps from 10% to 50%. Without stickiness, an early shopper who saw the bundle at 39 dollars on Monday sees 45 on Thursday, and that's screenshots, support tickets, and a "price glitch" thread. Sticky bucketing locks her to the original price while new traffic fills the new split. It works with remote evaluation only, and turning it on or off mid-test distorts exposure ratios, so you decide before launch.</p>
+</div>
+
+<script>
+const N = 40;
+const grid = document.getElementById('grid');
+// initial 50/50: first 20 treatment, rest control (by fixed ticket)
+const tickets = Array.from({length: N}, (_, i) => (i * 37 + 11) % 100);
+let state = tickets.map(t => t < 50 ? 'treatment' : 'control');
+for (let i = 0; i < N; i++) grid.appendChild(document.createElement('div'));
+
+function render(flips) {
+  for (let i = 0; i < N; i++) {
+    grid.children[i].className = 'dot ' + state[i] + ((flips && flips.has(i)) ? ' flip' : '');
+  }
+}
+function reset() {
+  state = tickets.map(t => t < 50 ? 'treatment' : 'control');
+  document.getElementById('phase').textContent = '40 shoppers at the starting 50/50 split.';
+  document.getElementById('read').textContent =
+    'Back to the 50/50 start. Ramp it both ways to compare.';
+  render();
+}
+function ramp(sticky) {
+  reset();
+  const flips = new Set();
+  const next = tickets.map((t, i) => {
+    const target = t < 20 ? 'treatment' : 'control'; // 20/80 new split
+    if (sticky) return state[i]; // keep first-seen variant
+    if (target !== state[i]) flips.add(i);
+    return target;
+  });
+  state = next;
+  render(flips);
+  document.getElementById('phase').textContent = 'Ramped to a 20/80 split.';
+  document.getElementById('read').textContent = sticky
+    ? 'Sticky on: nobody already in the test moved. The new split gets filled by fresh traffic, not by re-dealing existing shoppers. Zero flips.'
+    : flips.size + ' shoppers got re-dealt into a new variant mid-test. Each red outline is someone who saw one experience, then the other.';
+}
+render();
+</script>
+</body>
+</html>
