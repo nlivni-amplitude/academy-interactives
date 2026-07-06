@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What changing the salt does to a running test</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .btns { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  button { font-family: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: 1.5px solid #1E61F0; background: #1E61F0; color: #fff; cursor: pointer; }
+  button.ghost { background: #fff; color: #1E61F0; }
+  button:hover { opacity: 0.85; }
+  .saltlbl { font-family: ui-monospace, Menlo, monospace; font-size: 13px; color: #666; margin-bottom: 10px; }
+  .grid { display: grid; grid-template-columns: repeat(20, 1fr); gap: 4px; margin-bottom: 12px; }
+  .dot { aspect-ratio: 1; border-radius: 3px; transition: background 0.4s; }
+  .dot.control { background: #d7dbe3; }
+  .dot.treatment { background: #1E61F0; }
+  .read { font-size: 14px; font-weight: 500; padding: 10px 12px; border-radius: 8px; background: #f4f7fe; color: #0d3a9e; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">The salt is the ingredient in the bucketing hash that decides the shuffle. Keep it and the sorting never moves. Change it and every user gets re-sorted, which is exactly what you want for a fresh run and a disaster mid-experiment.</p>
+
+  <div class="stage">
+    <div class="saltlbl" id="saltlbl">salt = "aK3x9"</div>
+    <div class="grid" id="grid"></div>
+    <div class="btns">
+      <button onclick="reshuffle()">Change the salt</button>
+      <button class="ghost" onclick="keep()">Keep the salt</button>
+    </div>
+    <div class="read" id="read">40 shoppers, sorted by the current salt. Blue is treatment, gray is control.</div>
+  </div>
+
+  <div class="callout">Change the salt and the whole school gets re-sorted, everyone could land in a different house. That's great when you want a clean fresh shuffle, and catastrophic if it happens partway through a live test.</div>
+
+  <p class="close">At AmpliStore two weeks into the checkout test, an engineer edits the salt to clean things up. Thousands of shoppers silently swap variants, people mid-purchase see the other checkout, and the data mixes both experiences into something unreadable. The right use is a deliberate new run after fixing broken instrumentation, with the previous data excluded, which is why the platform gates salt changes behind approvals.</p>
+</div>
+
+<script>
+const N = 40;
+let salt = 12345;
+const grid = document.getElementById('grid');
+for (let i = 0; i < N; i++) grid.appendChild(document.createElement('div'));
+
+function hash(i, s) { return (Math.imul(i + 1, s) ^ (s >> 3)) % 100; }
+function render() {
+  for (let i = 0; i < N; i++) {
+    const t = ((hash(i, salt) % 100) + 100) % 100 < 50;
+    grid.children[i].className = 'dot ' + (t ? 'treatment' : 'control');
+  }
+}
+function reshuffle() {
+  salt = (salt * 7 + 31) % 99991;
+  document.getElementById('saltlbl').textContent = 'salt = "' + salt.toString(36) + '"';
+  render();
+  document.getElementById('read').textContent =
+    'New salt, full re-sort. Watch how many dots flipped color, every one of those is a shopper who just changed variants.';
+}
+function keep() {
+  render();
+  document.getElementById('read').textContent =
+    'Same salt, nothing moved. Keeping the salt is what holds assignments stable for the life of the experiment.';
+}
+render();
+</script>
+</body>
+</html>
