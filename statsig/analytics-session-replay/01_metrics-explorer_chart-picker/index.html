@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Which chart answers which question</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .qs { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .q { text-align: left; font-family: inherit; font-size: 14px; padding: 10px 13px; border-radius: 8px; border: 1.5px solid #d8dce4; background: #fff; color: #222; cursor: pointer; }
+  .q:hover { border-color: #1E61F0; }
+  .q.active { border-color: #1E61F0; background: #f4f7fe; font-weight: 500; }
+  .tools { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .tool { border: 1.5px solid #e0e0e0; border-radius: 8px; padding: 10px 8px; text-align: center; font-size: 11.5px; transition: all 0.25s; }
+  .tool .name { font-weight: 600; font-size: 12px; margin-bottom: 3px; display: block; }
+  .tool.lit { border-color: #1E61F0; background: #f4f7fe; }
+  .tool .desc { color: #666; line-height: 1.35; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">After you ship a gate or conclude an experiment, Pulse gives you the aggregate result. Metrics Explorer gives you everything else, and the trick is matching the question you're actually asking to the one chart built to answer it. Pick a question.</p>
+
+  <div class="stage">
+    <div class="qs">
+      <button class="q" onclick="pick(this,'funnel')">Where do users quit checkout?</button>
+      <button class="q" onclick="pick(this,'ret')">Did last month's signups come back?</button>
+      <button class="q" onclick="pick(this,'dist')">How many items do people usually buy?</button>
+      <button class="q" onclick="pick(this,'drill')">Why did purchases spike Tuesday?</button>
+      <button class="q" onclick="pick(this,'life')">Is our active base healthy or rotting?</button>
+    </div>
+    <div class="tools">
+      <div class="tool" id="t-funnel"><span class="name">Funnels</span><span class="desc">step-by-step conversion</span></div>
+      <div class="tool" id="t-ret"><span class="name">Retention</span><span class="desc">did a cohort come back by day N</span></div>
+      <div class="tool" id="t-dist"><span class="name">Distribution</span><span class="desc">spread of a behavior</span></div>
+      <div class="tool" id="t-drill"><span class="name">Drilldown</span><span class="desc">slice one metric to the driver</span></div>
+      <div class="tool" id="t-life"><span class="name">Lifecycle</span><span class="desc">new, recurring, resurrected, dormant</span></div>
+    </div>
+  </div>
+
+  <div class="callout">Metrics Explorer is a toolbox. Funnels ask where they stopped on the slide, retention asks whether they came back to the playground, distribution asks how many scoops everyone usually gets, drilldown is the magnifying glass that slices one metric by time and segment and source until one slice explains the whole move, and lifecycle asks whether these are new kids or the same kids coming back.</div>
+
+  <p class="close">These map closely to Amplitude's Funnel Analysis, Retention, Distribution, Segmentation, and User Composition. The difference is that Statsig's versions are gate and experiment aware by default, so grouping by experiment group is first-class, while Amplitude Analytics goes broader and deeper for product-wide behavior. The rule of thumb: "did my gate or experiment cause this" starts in Statsig, "how do users behave across the whole product" starts in Amplitude.</p>
+</div>
+
+<script>
+function pick(btn, tool) {
+  document.querySelectorAll('.q').forEach(q => q.classList.remove('active'));
+  document.querySelectorAll('.tool').forEach(t => t.classList.remove('lit'));
+  btn.classList.add('active');
+  document.getElementById('t-' + tool).classList.add('lit');
+}
+</script>
+</body>
+</html>
