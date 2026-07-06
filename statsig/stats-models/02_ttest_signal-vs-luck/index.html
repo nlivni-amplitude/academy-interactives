@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>When a lift is signal, not luck</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  canvas { width: 100%; height: 200px; display: block; }
+  .controls { display: flex; align-items: center; gap: 14px; margin: 12px 0 0; font-size: 14px; }
+  .read { font-size: 14px; font-weight: 500; padding: 10px 12px; border-radius: 8px; background: #f4f7fe; color: #0d3a9e; margin-top: 12px; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">Control converts at 4.1%, your variant at 4.6%. That half-point looks like a win, but daily noise from payday spikes and weekend dips can move a number that much on its own. The t-test is the referee that decides which one you're looking at.</p>
+
+  <div class="stage">
+    <canvas id="cv" width="680" height="200"></canvas>
+    <div class="controls">
+      <label>Lift between arms <input type="range" id="lift" min="0" max="100" value="55" oninput="draw()"></label>
+    </div>
+    <div class="read" id="read"></div>
+  </div>
+
+  <div class="callout">Each arm is a bell curve of where its true rate might sit, given the noise. When the curves sit almost on top of each other, a gap that size shows up by luck all the time. As the real difference grows, the curves pull apart until the overlap is small enough that noise alone can't explain it. The bigger the gap and the tighter each curve, the easier the call.</div>
+
+  <p class="close">On the AmpliStore shade-finder quiz, roughly 50,000 shoppers per arm and a p-value of 0.008 put the curves far enough apart to call it signal and ship. Statsig runs this as its default engine, a two-sample z-test that switches to Welch's t-test for small samples. Amplitude offers the same Welch's t-test as its fixed-horizon option.</p>
+</div>
+
+<script>
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+function bell(x, mu, sigma) { return Math.exp(-0.5 * Math.pow((x - mu) / sigma, 2)); }
+function draw() {
+  const lift = +document.getElementById('lift').value; // 0..100
+  const W = cv.width, H = cv.height;
+  ctx.clearRect(0, 0, W, H);
+  const sigma = 60;
+  const sep = (lift / 100) * 200;
+  const mu1 = W / 2 - 40 - sep / 2, mu2 = W / 2 - 40 + sep / 2;
+  const base = H - 24;
+  const scale = H - 60;
+
+  function curve(mu, color, fill) {
+    ctx.beginPath();
+    for (let px = 0; px <= W; px += 2) {
+      const y = base - bell(px, mu, sigma) * scale;
+      if (px === 0) ctx.moveTo(px, y); else ctx.lineTo(px, y);
+    }
+    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+    ctx.lineTo(W, base); ctx.lineTo(0, base); ctx.closePath();
+    ctx.fillStyle = fill; ctx.fill();
+  }
+  curve(mu1, '#9aa4b8', 'rgba(154,164,184,0.18)');
+  curve(mu2, '#1E61F0', 'rgba(30,97,240,0.16)');
+
+  ctx.fillStyle = '#666'; ctx.font = '12px IBM Plex Sans';
+  ctx.fillText('Control', mu1 - 22, base + 16);
+  ctx.fillText('Variant', mu2 - 20, base + 16);
+
+  const overlapPct = Math.max(0, 100 - lift);
+  const read = document.getElementById('read');
+  if (lift < 35) {
+    read.textContent = 'Curves overlap heavily. A gap this size shows up from noise alone often, so the t-test can\'t call it. Not enough separation to trust.';
+  } else if (lift < 70) {
+    read.textContent = 'Curves are pulling apart. The overlap is shrinking, but there\'s still a real chance noise produced this. Borderline, needs more data or a bigger effect.';
+  } else {
+    read.textContent = 'Curves barely overlap. A gap this size would almost never happen by chance, so the t-test calls it signal. This is a shippable result.';
+  }
+}
+draw();
+</script>
+</body>
+</html>
