@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How deployment keys route a flag to a surface</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .surfaces { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px; }
+  .surface { border: 1.5px solid #e0e0e0; border-radius: 8px; padding: 14px 12px; text-align: center; font-size: 13px; transition: all 0.3s; }
+  .surface .icon { font-size: 22px; display: block; margin-bottom: 5px; }
+  .surface .key { font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: #888; margin-top: 5px; }
+  .surface.lit { border-color: #1E61F0; background: #f4f7fe; }
+  .surface.lit.server { border-color: #1D9E75; background: #edf8f3; }
+  .surface .badge { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 5px; margin-top: 6px; display: inline-block; }
+  .badge.client { background: #e6f1fb; color: #0c447c; }
+  .badge.server { background: #e1f5ee; color: #0f6e56; }
+  button { font-family: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: 1.5px solid #1E61F0; background: #1E61F0; color: #fff; cursor: pointer; }
+  button:hover { opacity: 0.85; }
+  .read { font-size: 14px; font-weight: 500; padding: 10px 12px; border-radius: 8px; background: #f4f7fe; color: #0d3a9e; margin-top: 12px; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">A flag only reaches surfaces you've explicitly connected it to, through a named key called a deployment. The margin-sensitive pricing experiment below is attached to one surface only, and that's what keeps tomorrow's price logic out of view-source.</p>
+
+  <div class="stage">
+    <div class="surfaces">
+      <div class="surface" id="s-web"><span class="icon">🌐</span>Web storefront<div class="key">client key</div><span class="badge client">public-safe</span></div>
+      <div class="surface" id="s-ios"><span class="icon">📱</span>iOS app<div class="key">client key</div><span class="badge client">public-safe</span></div>
+      <div class="surface server" id="s-pricing"><span class="icon">🖥️</span>Pricing service<div class="key">server key</div><span class="badge server">secret</span></div>
+    </div>
+    <button onclick="deliver()">Deliver the pricing flag</button>
+    <div class="read" id="read">One experiment, three surfaces, three keys. Deliver the flag and see which door it's allowed through.</div>
+  </div>
+
+  <div class="callout">Deployments are name badges for each door of the shop: the website door, the app door, and the kitchen door in back. A flag is only handed out at doors you've badged. The kitchen badge, the server key, is powerful and stays secret. The front-door badges, client keys, are safe to show in public. Wrong badge at the wrong door and nothing gets through.</div>
+
+  <p class="close">At AmpliStore the dynamic-pricing experiment is attached only to the pricing-service deployment, so the web bundle can never leak the price logic into view-source, and each surface's data stays cleanly attributed to its own key. The rule that keeps you safe: never embed a server key in client code, since anyone with dev tools can read it. One deployment per surface keeps the blast radius of a mistake small.</p>
+</div>
+
+<script>
+function deliver() {
+  document.getElementById('s-pricing').classList.add('lit');
+  document.getElementById('s-web').classList.remove('lit');
+  document.getElementById('s-ios').classList.remove('lit');
+  document.getElementById('read').textContent =
+    'The flag was attached to the pricing-service deployment only, so it reaches the backend and nowhere else. The web and app surfaces never receive it, and the price logic stays server-side where it can\'t be read.';
+}
+</script>
+</body>
+</html>
