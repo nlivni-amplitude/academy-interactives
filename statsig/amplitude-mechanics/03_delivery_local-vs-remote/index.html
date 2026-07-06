@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Who decides the variant, HQ or your own copy</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .btns { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  button { font-family: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: 1.5px solid #1E61F0; background: #1E61F0; color: #fff; cursor: pointer; }
+  button.ghost { background: #fff; color: #1E61F0; }
+  button:hover { opacity: 0.85; }
+  .flow { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 96px; margin-bottom: 12px; }
+  .box { border: 1.5px solid #e0e0e0; border-radius: 8px; padding: 12px 14px; text-align: center; font-size: 12.5px; }
+  .box .icon { font-size: 22px; display: block; margin-bottom: 4px; }
+  .box.hq { border-color: #7F77DD; background: #eeedfe; }
+  .box.app { border-color: #1E61F0; background: #f4f7fe; }
+  .hop { font-size: 12px; color: #888; text-align: center; }
+  .timer { font-size: 13px; font-weight: 600; color: #1E61F0; text-align: center; margin-bottom: 4px; min-height: 18px; }
+  .read { font-size: 14px; font-weight: 500; padding: 10px 12px; border-radius: 8px; background: #f4f7fe; color: #0d3a9e; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">Both approaches deliver a variant. What differs is who computes the decision: Amplitude's servers, which can enrich the request with everything they know about the user, or your own SDK, which answers instantly but only knows what you hand it.</p>
+
+  <div class="stage">
+    <div class="btns">
+      <button onclick="show('remote')">Remote fetch</button>
+      <button class="ghost" onclick="show('local')">Local evaluation</button>
+    </div>
+    <div class="timer" id="timer"></div>
+    <div class="flow" id="flow"></div>
+    <div class="read" id="read">Pick a mode. Watch who answers and how long the round trip takes.</div>
+  </div>
+
+  <div class="callout">Remote is phoning HQ every time: "what should this shopper see?" HQ knows everything about them, their history, their cohorts, but the call takes time. Local is keeping a synced copy of the rulebook and answering instantly yourself, lightning fast, but you have to bring the shopper's details, because nobody at HQ is looking them up for you.</div>
+
+  <p class="close">At AmpliStore the homepage hero test targets a "lapsed VIPs" cohort, so it uses remote evaluation, letting the servers enrich the request with cohort membership, geolocation, and history. The search-ranking experiment handles 30,000 requests a second, so it uses local evaluation with configs synced to the SDK, evaluated in-process in a fraction of a millisecond. The trade for local: no sticky bucketing, no enrichment, and cohorts match by User ID only. Server-side local also logs assignment events instead of exposures, so you use assignment as the exposure event in analysis.</p>
+</div>
+
+<script>
+const flow = document.getElementById('flow');
+function show(mode) {
+  const timer = document.getElementById('timer');
+  if (mode === 'remote') {
+    flow.innerHTML =
+      '<div class="box app"><span class="icon">📱</span>App asks</div>' +
+      '<div class="hop">──▶ network ──▶</div>' +
+      '<div class="box hq"><span class="icon">🏢</span>HQ decides,<br>enriched</div>' +
+      '<div class="hop">──▶ variant ──▶</div>' +
+      '<div class="box app"><span class="icon">✓</span>Renders</div>';
+    let ms = 0; timer.textContent = 'round trip: 0 ms';
+    const t = setInterval(() => { ms += 12; timer.textContent = 'round trip: ' + ms + ' ms'; if (ms >= 120) clearInterval(t); }, 40);
+    document.getElementById('read').textContent =
+      'Remote: the app asks the servers, which resolve identity, apply cohorts and geo and history, and send back the variant. Richer decision, but every call pays a network round trip.';
+  } else {
+    flow.innerHTML =
+      '<div class="box app"><span class="icon">📱</span>App has the<br>synced rulebook</div>' +
+      '<div class="hop">answers itself</div>' +
+      '<div class="box app"><span class="icon">✓</span>Renders</div>';
+    timer.textContent = 'round trip: 0.007 ms, no network';
+    document.getElementById('read').textContent =
+      'Local: the flag config is already synced to the SDK, so the decision happens in-process with no network call. Sub-millisecond and built for high request rates, but you supply the user details and give up enrichment and sticky bucketing.';
+  }
+}
+</script>
+</body>
+</html>
