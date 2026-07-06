@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How a gate walks its rules in order</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 14px 18px; align-items: center; margin-bottom: 16px; font-size: 14px; }
+  .controls label { display: inline-flex; align-items: center; gap: 6px; }
+  input[type=range] { vertical-align: middle; }
+  button { font-family: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: 1.5px solid #1E61F0; background: #1E61F0; color: #fff; cursor: pointer; }
+  button:hover { opacity: 0.85; }
+  .rule { border: 1.5px solid #e0e0e0; border-radius: 8px; padding: 11px 14px; margin-bottom: 8px; font-size: 14px; transition: all 0.3s; }
+  .rule .rname { font-weight: 600; }
+  .rule code { background: #f1f3f7; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  .rule.pass { border-color: #1E61F0; background: #f4f7fe; }
+  .rule.fail { opacity: 0.5; }
+  .verdict { font-size: 14px; font-weight: 500; padding: 10px 12px; border-radius: 8px; background: #f4f7fe; color: #0d3a9e; min-height: 20px; margin-top: 4px; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin-bottom: 16px; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">A shopper matches your first rule's targeting but loses its rollout lottery. The question that resolves half of all "my gate isn't behaving" tickets: does the gate stop there, or keep checking?</p>
+
+  <div class="stage">
+    <div class="controls">
+      <label><input type="checkbox" id="ios" checked> On iOS</label>
+      <label><input type="checkbox" id="us"> In the US</label>
+      <label>Rule 2 rollout <input type="range" id="r2" min="0" max="100" step="10" value="50" oninput="document.getElementById('r2v').textContent=this.value+'%'"> <b id="r2v">50%</b></label>
+      <button onclick="evaluate()">Evaluate shopper</button>
+    </div>
+    <div class="rule" id="rule1"><span class="rname">Rule 1 · iOS shoppers in the US</span> · <code>platform = iOS</code> AND <code>country = US</code> · rollout 100%</div>
+    <div class="rule" id="rule2"><span class="rname">Rule 2 · Everyone else</span> · <code>everyone</code> · rollout <b id="r2lab">50%</b></div>
+    <div class="rule" id="rule3"><span class="rname">Default</span> · no rule matched, gate returns <code>false</code></div>
+    <div class="verdict" id="verdict">Set the shopper up and evaluate.</div>
+  </div>
+
+  <div class="callout">Think of three doors down a hallway, checked in order. Door 1's bouncer has a list, and even if you're on it he still runs a coin flip. Miss the list or lose the flip and you walk to Door 2. Nobody ever walks back to retry Door 1. Failing a rule for any reason, wrong targeting or lost lottery, drops you to the next one.</div>
+
+  <p class="close">This is also where the AND-vs-OR surprise lives: two conditions inside one rule both have to be true, but two separate rules give you "either one" for free through this same fall-through.</p>
+</div>
+
+<script>
+function evaluate() {
+  const ios = document.getElementById('ios').checked;
+  const us = document.getElementById('us').checked;
+  const r2 = +document.getElementById('r2').value;
+  document.getElementById('r2lab').textContent = r2 + '%';
+
+  const r1 = document.getElementById('rule1'), r2el = document.getElementById('rule2'), r3 = document.getElementById('rule3');
+  [r1, r2el, r3].forEach(el => el.className = 'rule');
+
+  const hash = Math.floor(Math.random() * 100);
+  const matchesR1 = ios && us;
+  const r1Pass = matchesR1; // rule 1 is 100% rollout, so matching targeting = pass
+  const r2Pass = hash < r2;
+
+  if (r1Pass) {
+    r1.classList.add('pass');
+    document.getElementById('verdict').textContent =
+      'Matched Rule 1 targeting at 100% rollout. The gate stops here and returns true. Rule 2 is never checked.';
+  } else if (matchesR1 === false && r2Pass) {
+    r1.classList.add('fail'); r2el.classList.add('pass');
+    document.getElementById('verdict').textContent =
+      `Didn't match Rule 1, so it fell through to Rule 2. Lottery number ${hash} is under ${r2}, so it passes there.`;
+  } else {
+    r1.classList.add('fail'); r2el.classList.add('fail'); r3.classList.add('pass');
+    document.getElementById('verdict').textContent =
+      `Fell past Rule 1, then lottery number ${hash} missed Rule 2's ${r2}% cut. No rule matched, so the gate returns false.`;
+  }
+}
+</script>
+</body>
+</html>
