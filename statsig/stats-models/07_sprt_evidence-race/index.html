@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why an obvious winner finishes fast</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  canvas { width: 100%; height: 200px; display: block; }
+  .btns { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  button { font-family: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: 1.5px solid #1E61F0; background: #1E61F0; color: #fff; cursor: pointer; }
+  button.ghost { background: #fff; color: #1E61F0; }
+  button:hover { opacity: 0.85; }
+  .read { font-size: 14px; font-weight: 500; padding: 10px 12px; border-radius: 8px; background: #f4f7fe; color: #0d3a9e; margin-top: 12px; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">Picture a tug-of-war between "it works" and "it doesn't." Every new shopper's data pulls the rope a little one way or the other. The instant the rope crosses a line, the test is over. A strong effect wins in seconds; two even teams keep pulling.</p>
+
+  <div class="stage">
+    <canvas id="cv" width="680" height="200"></canvas>
+    <div class="btns">
+      <button onclick="race(true)">Strong effect</button>
+      <button class="ghost" onclick="race(false)">No real effect</button>
+    </div>
+    <div class="read" id="read">Pick a scenario. The line is the accumulated evidence, the two edges are the decision boundaries.</div>
+  </div>
+
+  <div class="callout">This is what SPRT does: it tracks the ratio of evidence for "there's an effect" against "there isn't," and it stops the moment that ratio crosses a boundary in either direction. Obvious winners cross fast, obvious duds cross the other way fast, and genuinely close calls keep collecting data because the evidence hasn't tipped yet.</div>
+
+  <p class="close">At AmpliStore an "only 3 left" urgency badge has a big, immediate effect, so under SPRT the evidence smashes through the boundary in 5 days on a test scoped for 3 weeks. That's 16 days of conversion banked and the test slot freed. Statsig exposes SPRT as a selectable analytics type. Amplitude doesn't call it out as a mode because its default sequential engine already is mSPRT, the same family, so the answer to "does Amplitude have SPRT" is yes, it's the engine underneath.</p>
+</div>
+
+<script>
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+const W = cv.width, H = cv.height, mid = H / 2, upper = 30, lower = H - 30;
+function drawFrame(pts, decided) {
+  ctx.clearRect(0, 0, W, H);
+  // boundaries
+  ctx.strokeStyle = '#1D9E75'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(20, upper); ctx.lineTo(W - 20, upper); ctx.stroke();
+  ctx.strokeStyle = '#c0392b';
+  ctx.beginPath(); ctx.moveTo(20, lower); ctx.lineTo(W - 20, lower); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#0f6e56'; ctx.font = '12px IBM Plex Sans'; ctx.fillText('effect confirmed', 24, upper - 6);
+  ctx.fillStyle = '#a3352a'; ctx.fillText('no effect confirmed', 24, lower + 16);
+  // evidence path
+  ctx.beginPath(); ctx.strokeStyle = '#1E61F0'; ctx.lineWidth = 2;
+  pts.forEach((y, i) => { const x = 20 + i / 120 * (W - 40); if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
+  ctx.stroke();
+}
+function race(strong) {
+  const pts = [mid];
+  let i = 0, decided = false;
+  const read = document.getElementById('read');
+  const timer = setInterval(() => {
+    const drift = strong ? -2.4 : 0;
+    const noise = (i % 7 - 3) * 1.6;
+    let next = pts[pts.length - 1] + drift + noise;
+    next = Math.max(upper, Math.min(lower, next));
+    pts.push(next);
+    drawFrame(pts, decided);
+    if (!decided && next <= upper) {
+      decided = true; clearInterval(timer);
+      read.textContent = 'Evidence hit the top boundary on step ' + i + '. Effect confirmed, the test can stop early.';
+    } else if (!decided && next >= lower) {
+      decided = true; clearInterval(timer);
+      read.textContent = 'Evidence hit the bottom boundary. No effect, and you found that out without running the full horizon.';
+    } else if (i >= 120) {
+      clearInterval(timer);
+      read.textContent = strong
+        ? 'Confirmed early, well before the scheduled end.'
+        : 'The evidence never tipped. A genuinely close call keeps collecting data instead of forcing a false call.';
+    }
+    i++;
+  }, 35);
+}
+drawFrame([mid], false);
+</script>
+</body>
+</html>
