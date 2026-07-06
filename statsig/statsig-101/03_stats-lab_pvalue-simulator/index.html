@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What a p-value is actually telling you</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .cap { font-size: 13px; color: #555; margin-bottom: 12px; }
+  button { font-family: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: 1.5px solid #1E61F0; background: #1E61F0; color: #fff; cursor: pointer; margin-bottom: 14px; }
+  button:hover { opacity: 0.85; }
+  .grid { display: grid; grid-template-columns: repeat(20, 1fr); gap: 3px; margin-bottom: 14px; }
+  .sq { aspect-ratio: 1; border-radius: 2px; background: #eceef2; }
+  .sq.hit { background: #1E61F0; }
+  .verdict { font-size: 14px; font-weight: 500; padding: 10px 12px; border-radius: 8px; background: #f4f7fe; color: #0d3a9e; min-height: 20px; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin-bottom: 16px; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">Your experiment shows treatment ahead by 4 percentage points. Before believing the feature did that, it's worth asking how often pure randomness alone produces a gap that size, when nothing actually changed.</p>
+
+  <div class="stage">
+    <div class="cap">100 simulated experiments. Both arms get the identical 20% true conversion rate, no real difference between them. Each square is one simulated run.</div>
+    <button onclick="runSims()">Run 100 experiments where nothing changed</button>
+    <div class="grid" id="grid"></div>
+    <div class="verdict" id="verdict">Press run to see how often luck alone clears a 4-point gap.</div>
+  </div>
+
+  <div class="callout">A p-value is that fraction. It's not the odds the feature works, it's the odds that noise alone, with zero real effect, would still hand you a gap this big or bigger. A small p-value means that fraction is small, so the gap you saw is unusual enough to take seriously.</div>
+
+  <p class="close">Run it again and the count moves a little, that's expected, it's still random. What should stay roughly stable is that a 4-point gap isn't rare enough to ignore, but it isn't so rare that seeing it once proves anything either.</p>
+</div>
+
+<script>
+function simOneRun() {
+  const n = 200, trueRate = 0.20;
+  let control = 0, treatment = 0;
+  for (let i = 0; i < n; i++) { if (Math.random() < trueRate) control++; }
+  for (let i = 0; i < n; i++) { if (Math.random() < trueRate) treatment++; }
+  const gap = (treatment - control) / n;
+  return gap >= 0.04;
+}
+
+function runSims() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  let hits = 0;
+  for (let i = 0; i < 100; i++) {
+    const hit = simOneRun();
+    if (hit) hits++;
+    const sq = document.createElement('div');
+    sq.className = 'sq' + (hit ? ' hit' : '');
+    grid.appendChild(sq);
+  }
+  document.getElementById('verdict').innerHTML =
+    `${hits} of 100 "nothing changed" experiments still landed a gap of 4 points or more, just from noise. That's roughly your p-value for a +4% result: about ${(hits/100).toFixed(2)}.`;
+}
+</script>
+</body>
+</html>
