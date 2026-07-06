@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>When a 50/50 split quietly isn't</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .scale { position: relative; height: 190px; margin: 10px 0 6px; }
+  .post { position: absolute; left: 50%; bottom: 0; width: 6px; height: 120px; background: #cfd4de; transform: translateX(-50%); border-radius: 3px; }
+  .beam { position: absolute; left: 50%; top: 40px; width: 340px; height: 6px; background: #1E61F0; transform: translateX(-50%) rotate(0deg); transform-origin: center; transition: transform 0.6s ease; border-radius: 3px; }
+  .pan { position: absolute; top: 46px; width: 120px; text-align: center; transition: transform 0.6s ease; }
+  .panL { left: calc(50% - 170px); }
+  .panR { left: calc(50% + 50px); }
+  .tray { border: 1.5px solid #1E61F0; border-radius: 8px; padding: 12px 0; font-size: 22px; font-weight: 600; color: #1E61F0; background: #f4f7fe; }
+  .plbl { font-size: 12px; color: #555; margin-top: 6px; }
+  .flag { position: absolute; left: 50%; top: 0; transform: translateX(-50%); font-size: 13px; font-weight: 600; color: #d0492c; opacity: 0; transition: opacity 0.4s; }
+  .flag.show { opacity: 1; }
+  button { font-family: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: 1.5px solid #1E61F0; background: #1E61F0; color: #fff; cursor: pointer; }
+  button:hover { opacity: 0.85; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">You configured a clean 50/50 split. Users flow in and it settles at 54/46. That gap looks close enough to shrug off, and it's exactly the thing you shouldn't.</p>
+
+  <div class="stage">
+    <div class="scale">
+      <div class="post"></div>
+      <div class="beam" id="beam"></div>
+      <div class="pan panL"><div class="tray" id="trayL">0</div><div class="plbl">Control</div></div>
+      <div class="pan panR"><div class="tray" id="trayR">0</div><div class="plbl">Treatment</div></div>
+      <div class="flag" id="flag">Sample ratio mismatch detected</div>
+    </div>
+    <button onclick="run()">Play</button>
+  </div>
+
+  <div class="callout">A 46/54 split isn't "close enough" when the chi-squared test says an imbalance this large has under a 0.01% chance of happening randomly. That means something systematic is filtering one arm differently: a crash before exposure logs, bot traffic, conditional logging, truncated logs. More data makes it worse, not better, because you're adding more biased data on top.</div>
+
+  <p class="close">The diagnostic is the SRM p-value over time. Noisy and bouncing around means it might be a false alarm. Trending toward zero means a real bug, and the fix is to find the cause, then restart the experiment clean. A compromised split can't be read past, no matter how good the scorecard underneath it looks.</p>
+</div>
+
+<script>
+function run() {
+  const trayL = document.getElementById('trayL'), trayR = document.getElementById('trayR');
+  const beam = document.getElementById('beam'), flag = document.getElementById('flag');
+  beam.style.transform = 'translateX(-50%) rotate(0deg)';
+  document.querySelector('.panL').style.transform = 'translateY(0)';
+  document.querySelector('.panR').style.transform = 'translateY(0)';
+  flag.classList.remove('show');
+  // deterministic 54/46 control-heavy split: subtle enough to look fine, real enough to flag
+  let n = 0;
+  const total = 100;
+  const timer = setInterval(() => {
+    if (n >= total) {
+      clearInterval(timer);
+      beam.style.transform = 'translateX(-50%) rotate(-5deg)';
+      document.querySelector('.panL').style.transform = 'translateY(14px)';
+      document.querySelector('.panR').style.transform = 'translateY(-14px)';
+      flag.classList.add('show');
+      return;
+    }
+    n++;
+    const c = Math.round(n * 0.54);
+    trayL.textContent = c;
+    trayR.textContent = n - c;
+  }, 30);
+}
+</script>
+</body>
+</html>
