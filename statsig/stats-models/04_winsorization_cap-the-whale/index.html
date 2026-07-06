@@ -39,7 +39,7 @@
     <div class="read" id="read">Raw orders. One reseller order towers over everyone and drags the mean far above what a typical shopper spends.</div>
   </div>
 
-  <div class="callout">One kid brings 500 marbles to school and suddenly the average kid has 40, which is nonsense. Winsorization says for the math, treat that kid as bringing about the most a normal kid brings. Nobody takes their marbles away, the order still happened, you just don't let a single outlier wreck the average everyone else is being measured against.</div>
+  <div class="callout"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#1E61F0;margin-bottom:6px;">Explained in non-technical terms</div>One kid brings 500 marbles to school and suddenly the average kid has 40, which is nonsense. Winsorization says for the math, treat that kid as bringing about the most a normal kid brings. Nobody takes their marbles away, the order still happened, you just don't let a single outlier wreck the average everyone else is being measured against.</div>
 
   <p class="close">Cap at the 99th percentile, about 450 dollars an order, and the reseller counts as 450. Now the test measures what typical shoppers actually do. Statsig caps per metric and adds exact value capping on Warehouse Native, so you can cap daily purchases at a fixed number to exclude resellers outright. Amplitude offers the percentile cap plus an optional log transform for heavy-tailed metrics, applied after the cap.</p>
 </div>
