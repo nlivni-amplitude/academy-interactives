@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finding the step where treatment breaks</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  button { font-family: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: 1.5px solid #1E61F0; background: #1E61F0; color: #fff; cursor: pointer; margin-bottom: 16px; }
+  button:hover { opacity: 0.85; }
+  .funnel { display: flex; align-items: flex-end; gap: 10px; height: 170px; }
+  .step { flex: 1; display: flex; align-items: flex-end; gap: 4px; height: 100%; position: relative; }
+  .b { flex: 1; border-radius: 4px 4px 0 0; transition: height 0.7s ease; min-height: 3px; }
+  .b.c { background: #b9c3dd; }
+  .b.t { background: #1E61F0; }
+  .divg { position: absolute; top: -6px; left: 50%; transform: translateX(-50%); font-size: 11px; font-weight: 600; color: #c0392b; white-space: nowrap; opacity: 0; transition: opacity 0.4s; }
+  .divg.show { opacity: 1; }
+  .labels { display: flex; gap: 10px; margin-top: 8px; }
+  .labels span { flex: 1; font-size: 11px; color: #666; text-align: center; }
+  .legend { display: flex; gap: 16px; font-size: 12px; color: #666; margin-top: 10px; }
+  .legend i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; margin-right: 5px; vertical-align: -1px; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">Your experiment shows a 3% drop in completed checkouts for treatment. That aggregate number tells you something's wrong, not where. Splitting the funnel by experiment group finds the exact step the two groups pull apart.</p>
+
+  <div class="stage">
+    <button onclick="run()">Run the funnel comparison</button>
+    <div class="funnel" id="funnel">
+      <div class="step" data-c="100" data-t="100"><div class="b c"></div><div class="b t"></div></div>
+      <div class="step" data-c="72" data-t="71"><div class="b c"></div><div class="b t"></div></div>
+      <div class="step" data-c="55" data-t="40"><div class="divg" id="divg">divergence starts here</div><div class="b c"></div><div class="b t"></div></div>
+      <div class="step" data-c="38" data-t="26"><div class="b c"></div><div class="b t"></div></div>
+    </div>
+    <div class="labels"><span>page load</span><span>add to cart</span><span>checkout started</span><span>checkout done</span></div>
+    <div class="legend"><span><i style="background:#b9c3dd"></i>control</span><span><i style="background:#1E61F0"></i>treatment</span></div>
+  </div>
+
+  <div class="callout">Two lines of kids run the same obstacle course, side by side, until the monkey bars, where the blue team suddenly thins out. You haven't proven why yet, but you know exactly where to point the camera. The bars stay matched through the first two steps, then treatment falls off a cliff at checkout started.</div>
+
+  <p class="close">Steps one and two are unaffected, everything after checkout started is just a consequence, so the problem lives at that one step. One caution: this split is not Pulse. Pulse tells you whether the aggregate effect is real with statistical testing, the funnel split tells you where it happens without per-step stats. A 3% aggregate drop can surface as a 15% drop at a single step. The next stop is Session Replay triggered on the treatment assignment, to watch what those users hit right there.</p>
+</div>
+
+<script>
+function run() {
+  const steps = document.querySelectorAll('.step');
+  document.getElementById('divg').classList.remove('show');
+  steps.forEach(s => { s.querySelector('.b.c').style.height = '0'; s.querySelector('.b.t').style.height = '0'; });
+  let i = 0;
+  const timer = setInterval(() => {
+    if (i >= steps.length) {
+      clearInterval(timer);
+      document.getElementById('divg').classList.add('show');
+      return;
+    }
+    const s = steps[i];
+    s.querySelector('.b.c').style.height = s.dataset.c + '%';
+    s.querySelector('.b.t').style.height = s.dataset.t + '%';
+    i++;
+  }, 550);
+}
+</script>
+</body>
+</html>
