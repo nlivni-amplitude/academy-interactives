@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why a seven-step funnel lies to you</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 18px; margin-bottom: 16px; font-size: 14px; }
+  .row { display: flex; align-items: flex-end; gap: 20px; }
+  .bars { flex: 1; display: flex; align-items: flex-end; gap: 6px; height: 150px; }
+  .bar { flex: 1; background: #1E61F0; border-radius: 4px 4px 0 0; transition: height 0.3s; min-height: 3px; position: relative; }
+  .bar span { position: absolute; top: -18px; left: 0; right: 0; text-align: center; font-size: 11px; color: #666; }
+  .final { text-align: center; min-width: 100px; }
+  .final .lbl { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; }
+  .final .pct { font-size: 32px; font-weight: 600; color: #1E61F0; transition: color 0.3s; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">Every step of a funnel loses some people, even when each step is easy. Stack enough easy steps and most of the group never reaches the end, and worse, you can't tell which step was the real problem because they all leaked a little.</p>
+
+  <div class="stage">
+    <div class="controls">
+      <label>Steps <input type="range" id="steps" min="3" max="8" value="4" oninput="draw()"> <b id="stepsv">4</b></label>
+      <label>Per-step conversion <input type="range" id="conv" min="50" max="95" step="5" value="80" oninput="draw()"> <b id="convv">80%</b></label>
+    </div>
+    <div class="row">
+      <div class="bars" id="bars"></div>
+      <div class="final"><div class="lbl">Finish the funnel</div><div class="pct" id="pct">41%</div></div>
+    </div>
+  </div>
+
+  <div class="callout">Seven easy hoops in a row and most of the class never gets the prize, and you can't tell which hoop was the annoying one, because they all leaked. The fix is to build funnels from three to five real decision points, the moments a user actually chooses to continue, not from every page load along the way.</div>
+
+  <p class="close">At 80% per step a seven-step funnel ends around a quarter of where it started, and with seven candidate steps no single one stands out as the culprit. Keeping it to a few decision events means a real drop shows up as a sharp break at one step instead of a slow bleed across all of them.</p>
+</div>
+
+<script>
+function draw() {
+  const steps = +document.getElementById('steps').value;
+  const conv = +document.getElementById('conv').value / 100;
+  document.getElementById('stepsv').textContent = steps;
+  document.getElementById('convv').textContent = Math.round(conv * 100) + '%';
+  const bars = document.getElementById('bars');
+  bars.innerHTML = '';
+  let pct = 100;
+  for (let i = 0; i < steps; i++) {
+    if (i > 0) pct *= conv;
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    bar.style.height = pct + '%';
+    bar.innerHTML = '<span>' + Math.round(pct) + '%</span>';
+    bars.appendChild(bar);
+  }
+  const el = document.getElementById('pct');
+  el.textContent = Math.round(pct) + '%';
+  el.style.color = pct < 30 ? '#c0392b' : pct < 55 ? '#854f0b' : '#1E61F0';
+}
+draw();
+</script>
+</body>
+</html>
