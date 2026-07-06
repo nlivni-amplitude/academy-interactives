@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The dashboard that maintains itself</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .dash { border: 1.5px dashed #cbd2e0; border-radius: 8px; padding: 14px; margin-bottom: 12px; }
+  .dash h5 { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+  .dash code { background: #eef0f4; padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+  .cards { display: flex; flex-wrap: wrap; gap: 8px; }
+  .dcard { border: 1.5px solid #e0e0e0; border-radius: 8px; padding: 10px 12px; font-size: 12.5px; background: #fff; }
+  .dcard.new { border-color: #1D9E75; background: #edf8f3; animation: pop 0.4s ease; }
+  @keyframes pop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .tag { display: inline-block; font-size: 10px; font-weight: 600; background: #e6f1fb; color: #0c447c; padding: 1px 7px; border-radius: 5px; margin-top: 5px; }
+  .btns { display: flex; gap: 10px; flex-wrap: wrap; }
+  button { font-family: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: 1.5px solid #1E61F0; background: #1E61F0; color: #fff; cursor: pointer; }
+  button.ghost { background: #fff; color: #1E61F0; }
+  button:hover { opacity: 0.85; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">You tag every checkout gate and experiment "checkout" and give the dashboard the same tag. Next week a teammate ships a new checkout experiment and never touches your dashboard. A card for it shows up anyway.</p>
+
+  <div class="stage">
+    <div class="dash">
+      <h5>Dashboard: Checkout Health &mdash; tagged <code>checkout</code></h5>
+      <div class="cards" id="cards">
+        <div class="dcard">gate: one_click_checkout<br><span class="tag">checkout</span></div>
+        <div class="dcard">exp: cart_upsell_test<br><span class="tag">checkout</span></div>
+      </div>
+    </div>
+    <div class="btns">
+      <button onclick="addCard()">Teammate ships a new "checkout" experiment</button>
+      <button class="ghost" onclick="reset()">Reset</button>
+    </div>
+  </div>
+
+  <div class="callout">It's a photo album that files itself. Any photo you label "beach" jumps into the beach album on its own. You never glue photos in again, you just have to agree with everyone what the labels are. The one-time cost is settling on a tag taxonomy, checkout, onboarding, payments, and after that the dashboard maintains itself.</div>
+
+  <p class="close">Building a dashboard by adding charts one at a time is doing it the hard way. Tag-based auto-populate adds a snapshot card for every new gate or experiment that carries a matching tag. This is a genuine Statsig-side difference: Amplitude dashboards are curated, you add charts or let a template scaffold them, with no direct tag-driven auto-populate for flags and experiments. Worth knowing when someone asks what's different about Statsig's dashboards.</p>
+</div>
+
+<script>
+const extras = [
+  'exp: express_pay_test',
+  'gate: guest_checkout',
+  'exp: address_autofill'
+];
+let added = 0;
+function addCard() {
+  if (added >= extras.length) return;
+  const card = document.createElement('div');
+  card.className = 'dcard new';
+  card.innerHTML = extras[added] + '<br><span class="tag">checkout</span>';
+  document.getElementById('cards').appendChild(card);
+  added++;
+}
+function reset() {
+  document.querySelectorAll('.dcard.new').forEach(c => c.remove());
+  added = 0;
+}
+</script>
+</body>
+</html>
