@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why fewer users show up in a metric than you assigned</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .zones { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .zone { border: 1.5px solid #e0e0e0; border-radius: 8px; padding: 12px; }
+  .zone h5 { font-size: 12px; font-weight: 600; margin-bottom: 8px; color: #333; }
+  .zone.assigned h5 { color: #3a49a8; }
+  .zone.part h5 { color: #0d7a52; }
+  .cnt { font-size: 26px; font-weight: 600; margin-bottom: 10px; }
+  .dots { display: flex; flex-wrap: wrap; gap: 5px; min-height: 66px; }
+  .dot { width: 13px; height: 13px; border-radius: 50%; background: #dfe3ec; transition: background 0.3s; }
+  .dot.on-a { background: #4A5DC7; }
+  .dot.on-p { background: #1D9E75; }
+  button { font-family: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: 1.5px solid #1E61F0; background: #1E61F0; color: #fff; cursor: pointer; }
+  button:hover { opacity: 0.85; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">You assigned 20 users to the experiment, but the purchase metric only shows 3. The first instinct is data loss. It's the most common support ticket in experimentation, and usually nothing is wrong.</p>
+
+  <div class="stage">
+    <div class="zones">
+      <div class="zone assigned">
+        <h5>Assigned · everyone the experiment exposed</h5>
+        <div class="cnt" id="acnt">0</div>
+        <div class="dots" id="adots"></div>
+      </div>
+      <div class="zone part">
+        <h5>Participated · fired the metric event after exposure</h5>
+        <div class="cnt" id="pcnt">0</div>
+        <div class="dots" id="pdots"></div>
+      </div>
+    </div>
+    <button onclick="run()">Play</button>
+  </div>
+
+  <div class="callout">You invited 20 people to the party. Three showed up and danced. The party wasn't broken, most invitees just didn't come. If the metric is "completed a purchase," most exposed users were never going to buy on that visit. Participation is assignment times how often the event actually fires, and for e-commerce that rate is small: 140,000 exposures against 2,100 purchases is a 1.5% purchase rate, which is normal.</div>
+
+  <p class="close">Only participants feed the metric math, so the gap between assigned and participated isn't loss, it's the funnel. One related read: the last day or two of any metric looks artificially flat because those events are still being processed. Report on baked data, not on the trailing edge that's still filling in.</p>
+</div>
+
+<script>
+const N = 20, participate = 3;
+function run() {
+  const adots = document.getElementById('adots'), pdots = document.getElementById('pdots');
+  adots.innerHTML = ''; pdots.innerHTML = '';
+  document.getElementById('acnt').textContent = '0';
+  document.getElementById('pcnt').textContent = '0';
+  for (let k = 0; k < N; k++) { const d = document.createElement('div'); d.className = 'dot'; adots.appendChild(d); }
+  for (let k = 0; k < N; k++) { const d = document.createElement('div'); d.className = 'dot'; pdots.appendChild(d); }
+
+  let a = 0;
+  const ai = setInterval(() => {
+    if (a >= N) { clearInterval(ai); fillPart(); return; }
+    adots.children[a].classList.add('on-a');
+    a++;
+    document.getElementById('acnt').textContent = a;
+  }, 60);
+
+  function fillPart() {
+    let p = 0;
+    const pi = setInterval(() => {
+      if (p >= participate) { clearInterval(pi); return; }
+      pdots.children[p].classList.add('on-p');
+      p++;
+      document.getElementById('pcnt').textContent = p;
+    }, 220);
+  }
+}
+</script>
+</body>
+</html>
