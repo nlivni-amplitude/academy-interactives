@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How CUPED tightens a noisy result</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 16px; }
+  .stage { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+  .track { position: relative; height: 70px; margin: 6px 0 4px; }
+  .axis { position: absolute; top: 40px; left: 0; right: 0; height: 2px; background: #e0e0e0; }
+  .zero { position: absolute; top: 20px; bottom: 12px; left: 50%; width: 2px; background: #c0392b; }
+  .zlbl { position: absolute; top: 2px; left: 50%; transform: translateX(-50%); font-size: 11px; color: #c0392b; }
+  .ci { position: absolute; top: 35px; height: 12px; background: #bcd0f5; border-radius: 6px; transition: all 0.8s ease; }
+  .dot { position: absolute; top: 30px; width: 20px; height: 20px; border-radius: 50%; background: #1E61F0; transform: translateX(-50%); transition: all 0.8s ease; }
+  .rowlbl { font-size: 12px; color: #666; margin-bottom: 2px; }
+  button { font-family: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: 1.5px solid #1E61F0; background: #1E61F0; color: #fff; cursor: pointer; }
+  button.ghost { background: #fff; color: #1E61F0; }
+  button:hover { opacity: 0.85; }
+  .read { font-size: 14px; font-weight: 500; padding: 10px 12px; border-radius: 8px; background: #f4f7fe; color: #0d3a9e; margin: 12px 0 0; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; margin: 16px 0; }
+  .close { font-size: 15px; line-height: 1.6; color: #222; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">Revenue per user at AmpliStore is dominated by a handful of regulars who spend 300 dollars a month no matter what you test. Their predictable spending is noise drowning out the effect you're actually measuring. CUPED nets it out.</p>
+
+  <div class="stage">
+    <div class="rowlbl">Lift estimate and 95% confidence interval</div>
+    <div class="track">
+      <div class="axis"></div>
+      <div class="zero"></div><div class="zlbl">0</div>
+      <div class="ci" id="ci" style="left:20%; width:60%"></div>
+      <div class="dot" id="dot" style="left:50%"></div>
+    </div>
+    <button onclick="apply()">Apply CUPED</button>
+    <button class="ghost" onclick="reset()">Reset</button>
+    <div class="read" id="read">Raw data. The interval is wide and still crosses zero, you can't call a direction yet.</div>
+  </div>
+
+  <div class="callout">Kids race to test new shoes, but some kids are just naturally fast, so the shoe effect is buried. CUPED checks how fast each kid ran last week, then asks whether they beat their own usual pace. Once everyone is measured against themselves, the shoe's real effect stands out fast. It uses each user's pre-experiment behavior as the baseline, so the part of the result that was always going to happen gets subtracted out.</div>
+
+  <p class="close">At AmpliStore the regulars' spending gets netted against their own 30-day history, the interval tightens by roughly 40%, and a test that needed four weeks reads out in about two and a half. Both platforms run it: Statsig per metric, extended as CURE on Warehouse Native, and Amplitude as an advanced setting framed around correcting pre-exposure bias.</p>
+</div>
+
+<script>
+function apply() {
+  document.getElementById('ci').style.left = '41%';
+  document.getElementById('ci').style.width = '26%';
+  document.getElementById('dot').style.left = '55%';
+  document.getElementById('read').textContent =
+    'CUPED applied. Same true effect, but the predictable spending is removed, so the interval shrinks and now clears zero. The result is readable.';
+}
+function reset() {
+  document.getElementById('ci').style.left = '20%';
+  document.getElementById('ci').style.width = '60%';
+  document.getElementById('dot').style.left = '50%';
+  document.getElementById('read').textContent =
+    'Raw data. The interval is wide and still crosses zero, you can\'t call a direction yet.';
+}
+</script>
+</body>
+</html>
