@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why two conditions in one rule quietly means AND</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "IBM Plex Sans", "Noto Sans Myanmar", sans-serif; background: #fff; color: #000; padding: 22px 20px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  p.lead { font-size: 16px; line-height: 1.6; margin-bottom: 18px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  .col { border: 1.5px solid #e0e0e0; border-radius: 10px; padding: 16px; }
+  .chip { display: inline-block; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 6px; margin-bottom: 12px; }
+  .chip.and { background: #fdecec; color: #a3352a; }
+  .chip.or { background: #f4f7fe; color: #0d3a9e; }
+  .col code { background: #f1f3f7; padding: 2px 6px; border-radius: 4px; font-size: 13px; display: inline-block; margin: 2px 0; }
+  .col .setup { font-size: 13.5px; line-height: 1.7; margin-bottom: 10px; }
+  .col .result { font-size: 13.5px; line-height: 1.6; color: #222; border-top: 1px solid #eee; padding-top: 10px; }
+  .callout { border-left: 3px solid #1E61F0; background: #f8f9fb; padding: 12px 16px; font-size: 14px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="lead">You want iOS shoppers or US shoppers to see a feature. You write one rule with both conditions, and an iOS shopper in Singapore never gets it. The rule did exactly what it said, which wasn't what you meant.</p>
+
+  <div class="cols">
+    <div class="col">
+      <span class="chip and">One rule, two conditions</span>
+      <div class="setup">Rule 1:<br><code>platform = iOS</code><br><code>country = US</code></div>
+      <div class="result">Conditions stacked inside a single rule are always joined with AND. Only shoppers who are both on iOS and in the US pass. That iOS shopper in Singapore fails.</div>
+    </div>
+    <div class="col">
+      <span class="chip or">Two separate rules</span>
+      <div class="setup">Rule 1: <code>platform = iOS</code><br>Rule 2: <code>country = US</code></div>
+      <div class="result">Split across two rules, fall-through does the work: a shopper who misses Rule 1 still gets checked against Rule 2. iOS or US shoppers pass. That's your OR.</div>
+    </div>
+  </div>
+
+  <div class="callout">This is the most common gate misconfiguration, and the interface doesn't make it obvious. The habit that avoids it: conditions inside a rule narrow the audience, separate rules widen it. When you catch yourself wanting "either," that's two rules, not one.</div>
+</div>
+</body>
+</html>
